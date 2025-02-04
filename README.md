@@ -76,7 +76,7 @@ Installing on Ubuntu:
 
 Follow the steps for Ubuntu Linux from this link: 
 
-`https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html`
+https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
 
 This project and start.sh script assume the AppImage file lives in your ~/Downloads. It can be moved, just remember to alter the script to point to the new path.
 
