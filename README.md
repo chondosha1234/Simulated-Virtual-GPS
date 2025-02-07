@@ -51,7 +51,9 @@ You can `cd` there and just run the script with `sudo ./install_geographiclib_da
 
 TF2 is a popular library that is used for complex mathematical calculations and is compatible with ROS and ROS 2. It is chosen due to its reputation. 
 
-**add install instructions here**
+Install instructions:
+
+`sudo apt install ros-jazzy-tf2-ros ros-jazzy-tf2-tools`
 
 ### PX4-Autopilot
 
