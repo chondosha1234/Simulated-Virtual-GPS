@@ -3,8 +3,8 @@
 <package format="3">
   <name>virtualGPS</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="chondosha@todo.todo">chondosha</maintainer>
+  <description>Simulated virtual GPS with drones - CS1980 Capstone project</description>
+  <maintainer email="jjm267@pitt.edu">Jonathan Miller, Olivia Neights, Zixin Ye</maintainer>
   <license>Apache-2.0</license>
 
   <test_depend>ament_copyright</test_depend>

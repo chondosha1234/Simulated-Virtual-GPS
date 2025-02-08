@@ -49,6 +49,19 @@ PIDS="$PIDS $!"
 cd ~/PX4-Autopilot && PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="-3,0" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 4 > "$LOG_DIR/px4_drone4.log" 2>&1 & 
 PIDS="$PIDS $!"
 
+sleep 2
+
+echo "Bridging gz topics to ROS topics"
+
+ros2 run ros_gz_bridge parameter_bridge /model/x500_0/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+PIDS="$PIDS $!"
+ros2 run ros_gz_bridge parameter_bridge /model/x500_1/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+PIDS="$PIDS $!"
+ros2 run ros_gz_bridge parameter_bridge /model/x500_2/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+PIDS="$PIDS $!"
+ros2 run ros_gz_bridge parameter_bridge /model/x500_3/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+PIDS="$PIDS $!"
+
 echo "All drones and systems started."
 echo "Press Ctrl+C to shut everything down."
 
