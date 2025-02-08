@@ -4,7 +4,7 @@
 
 ### Sponsor 
 
-Luis Oliveria 
+Luis Oliveira 
 
 ### Authors
 
@@ -92,6 +92,13 @@ Installation steps:
 
 This should install the gazebo version that matches your ROS distribution. In our case since we have ROS Jazzy, it should install GZ Harmonic.
 
+Running inside a virtual machine may cause a "Unable to create the rendering window" error. In this case, the user can try disabling DRI by:
+
+`export LIBGL_DRI3_DISABLE=1`
+
+or force software rendering
+
+`export MESA_GL_VERSION_OVERRIDE=3.3`
 
 ## Hello World 
 
