@@ -8,15 +8,35 @@ def generate_launch_description():
     launch_description = LaunchDescription([
         Node(
             package='virtualGPS',
-            executable='virtual_gps',
-            name='virtual_gps',
-            parameters=[],
+            executable='tf_pose_broadcaster',
+            name='tf_pose_broadcaster',
+            parameters=[
+                {'robot_name':'x500_1'},
+            ],
         ),
         Node(
             package='virtualGPS',
-            executable='sensor',
-            name='sensor',
-            parameters=[],
+            executable='tf_pose_broadcaster',
+            name='tf_pose_broadcaster',
+            parameters=[
+                {'robot_name':'x500_2'},
+            ],
+        ),
+        Node(
+            package='virtualGPS',
+            executable='tf_pose_broadcaster',
+            name='tf_pose_broadcaster',
+            parameters=[
+                {'robot_name':'x500_3'},
+            ],
+        ),
+        Node(
+            package='virtualGPS',
+            executable='tf_pose_broadcaster',
+            name='tf_pose_broadcaster',
+            parameters=[
+                {'robot_name':'x500_4'},
+            ],
         ),
     ])
 

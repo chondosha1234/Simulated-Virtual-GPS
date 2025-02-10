@@ -62,6 +62,16 @@ PIDS="$PIDS $!"
 ros2 run ros_gz_bridge parameter_bridge /model/x500_3/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
 PIDS="$PIDS $!"
 
+echo "Building and sourcing virtualGPS package..."
+
+cd ~/cs1980/cs1980_ws && colcon build
+source install/setup.bash 
+
+echo "Launching ROS2 launch file 'virtual_gps.launch.py'"
+
+ros2 launch virtualGPS virtual_gps.launch.py > "$LOG_DIR/ros2_launch.log" 2>&1 &
+PIDS="$PIDS $!"
+
 echo "All drones and systems started."
 echo "Press Ctrl+C to shut everything down."
 
