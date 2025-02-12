@@ -1,53 +1,104 @@
+from decimal import FloatOperation
 import rclpy
 from rclpy.node import Node
 
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import TransformStamped
 
+# wrong?
+from std_msgs.msg import Float
+
+import math
+
 class SensorNode(Node):
 
     def __init__(self):
         super().__init__('sensor')
 
-        # add a publisher to some topic that GPS will subscribe too -- message type could be something like Float? or maybe a message type that has String and float?
-
-        # add subsriber for topic '/tf' - it will hold all robot positions 
-        # the robot name will be in field like msg.child_frame_id or maybe msg.transforms.child_frame_id 
-
-        # add Pose variables to keep track of drone positions 
+        # Pose variables to keep track of drone positions 
         self.x500_0_pose = Pose()
+        self.x500_1_pose = Pose()
+        self.x500_2_pose = Pose()
+        self.x500_3_pose = Pose()
 
-        # also add a timer, and when the timer fire it runs a callback function. 
-        # this callback can then use the calculate_distance function to do all the distances and publish along the next topic to send to virtual_gps node 
-        # the timer callback could be like every 100 or 200 ms, and the tf_broadcaster will be sending every 20 ms lets say 
-        # that way this node has enough time to collect updates for each robot and calculate new distance before sending it on 
-        
-        self.timer = self.create_timer(0.2, self.timer_callback)  # .2 sec = 200 ms 
+        # publisher to topic that virtual_gps will subscribe to -- msg type TBD, using float for now
+        # change topic name?
+        self.x500_publisher = self.create_publisher(float, '/dist', 10)
+
+        # subscriber to '/tf' which contains robot positions
+        self.x500_subscriber = self.create_subscription(Pose, '/tf', self.pose_callback, 10)
+
+        # timer that runs callback function every 200ms -- tf_broadcaster sending every ~20ms
+        # this node has enough time to collect updates/calculate for each robot before sending 
+        self.timer = self.create_timer(0.2, self.timer_callback)  # .2s -> 200ms 
 
     # subscriber callback function 
     def pose_callback(self, msg):
-        # the message should be type Pose, so can set it to the pose variable for each robot declared in this file ?
-        # also, remember to check the msg 'robot name' and assign it to the appropriate variable from __init__
-        return 0
+        # robot name in field like msg.child_frame_id or msg.transforms.child_frame_id
+        robot_name = msg.child_frame_id
 
+        # here for testing purposes
+        print("Robot name: ", robot_name)
+        
+        # setting pose variable equal to msg (should be of type pose)
+        # id names incorrect?
+        if robot_name == 'x500_0':
+            self.x500_0_pose = msg
+        elif robot_name == 'x500_1':
+            self.x500_1_pose = msg
+        elif robot_name == 'x500_2':
+            self.x500_2_pose = msg
+        elif robot_name == 'x500_3':
+            self.x500_3_pose = msg
+        else:
+            print("error")
+
+        return 0
 
     def timer_callback(self):
-        # calculate distance for every robot pair 
-        # i.e.  0,1  0,2  0,3  1,2  1,3  2,3 etc. 
-        # and publish to the GPS (msg type and format TBD)
-        return 0
-
-    
-    # function to calculate distance between any 2 robots passed to it
-    def calculate_distance(self, robot1, robot2):
-
-        # args could be the self.x500_#_pose variables
-        # then extract the x,y,z from each and do euclidean distance calculation 
-
-        # ** there might be a tf2 function that auto calculates distances? not sure **
+        # calculate distance for every robot pair -- currently just 0 and 1 for testing purposes
+        dist0_1 = self.calculate_distance(self.x500_0_pose, self.x500_1_pose)
         
-        # return a distance and/or publish it 
+
+        # distances for all robot pairs
+        # dist0_2 = self.calculate_distance(self.x500_0_pose, self.x500_2_pose)
+        # dist0_3 = self.calculate_distance(self.x500_0_pose, self.x500_3_pose)
+        # dist1_2 = self.calculate_distance(self.x500_1_pose, self.x500_2_pose)
+        # dist1_3 = self.calculate_distance(self.x500_1_pose, self.x500_3_pose)
+        # dist2_3 = self.calculate_distance(self.x500_2_pose, self.x500_3_pose)
+
+        # publish distances to the GPS (msg type and format TBD) -- using float for now
+        # distances will be calculated and published to '/dist' for virtual_gps 
+        msg = Float() # ?
+        msg.data = dist0_1
+        self.x500_publisher.publish(msg)
+
         return 0
+
+    # function to calculate distance between any 2 robots passed to it
+    # args could be the self.x500_#_pose variables
+    def calculate_distance(self, robot1, robot2):
+        # extracting x,y,z from each pose  
+        x1 = robot1.x
+        y1 = robot1.y
+        z1 = robot1.z
+
+        x2 = robot2.x
+        y2 = robot2.y
+        z2 = robot2.z
+
+        # using x,y,z values to calculate euclidean distance
+        x_value = (x1-x2) ** 2
+        y_value = (y1-y2) ** 2
+        z_value = (z1-z2) ** 2
+
+        # possibly replace these calculations with tf2 function?--probably not necessary
+        euclidean_distance = math.sqrt((x_value + y_value + z_value)) 
+
+        # here for testing purposes
+        print(euclidean_distance)
+        
+        return euclidean_distance
 
 
 def main():
@@ -61,5 +112,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
