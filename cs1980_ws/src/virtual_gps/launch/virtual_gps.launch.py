@@ -7,7 +7,7 @@ def generate_launch_description():
     
     launch_description = LaunchDescription([
         Node(
-            package='virtualGPS',
+            package='virtual_gps',
             executable='tf_pose_broadcaster',
             name='tf_pose_broadcaster',
             parameters=[
@@ -15,7 +15,7 @@ def generate_launch_description():
             ],
         ),
         Node(
-            package='virtualGPS',
+            package='virtual_gps',
             executable='tf_pose_broadcaster',
             name='tf_pose_broadcaster',
             parameters=[
@@ -23,7 +23,7 @@ def generate_launch_description():
             ],
         ),
         Node(
-            package='virtualGPS',
+            package='virtual_gps',
             executable='tf_pose_broadcaster',
             name='tf_pose_broadcaster',
             parameters=[
@@ -31,7 +31,7 @@ def generate_launch_description():
             ],
         ),
         Node(
-            package='virtualGPS',
+            package='virtual_gps',
             executable='tf_pose_broadcaster',
             name='tf_pose_broadcaster',
             parameters=[

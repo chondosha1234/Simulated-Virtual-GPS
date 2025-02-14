@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 import os
 from glob import glob
 
-package_name = 'virtualGPS'
+package_name = 'virtual_gps'
 
 setup(
     name=package_name,
@@ -23,10 +23,10 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'drone_control = virtualGPS.drone_control:main',
-            'virtual_gps = virtualGPS.virtual_gps:main',
-            'sensor = virtualGPS.sensor:main',
-            'tf_pose_broadcaster = virtualGPS.tf_pose_broadcaster:main',
+            'drone_control = virtual_gps.drone_control:main',
+            'virtual_gps = virtual_gps.virtual_gps:main',
+            'sensor = virtual_gps.sensor:main',
+            'tf_pose_broadcaster = virtual_gps.tf_pose_broadcaster:main',
         ],
     },
 )

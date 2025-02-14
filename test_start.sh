@@ -26,20 +26,28 @@ PIDS="$PIDS $!"
 echo "Launching PX4 models for the X500 drones..."
 
 
-cd ~/PX4-Autopilot && PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="0,3" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 0 > "$LOG_DIR/px4_drone1.log" 2>&1 &
+cd ~/PX4-Autopilot && PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="0,3" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 1 > "$LOG_DIR/px4_drone1.log" 2>&1 &
 PIDS="$PIDS $!"
 # sleep and wait for gazebo to open, so subsequent drones are added to the same instance 
 sleep 5
 
-cd ~/PX4-Autopilot && PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="0,0" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 1 > "$LOG_DIR/px4_drone2.log" 2>&1 & 
+cd ~/PX4-Autopilot && PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="0,0" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 2 > "$LOG_DIR/px4_drone2.log" 2>&1 & 
 PIDS="$PIDS $!"
 sleep 2
 
 echo "Bridging gz topics to ROS topics"
 
-ros2 run ros_gz_bridge parameter_bridge /model/x500_0/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
-PIDS="$PIDS $!"
 ros2 run ros_gz_bridge parameter_bridge /model/x500_1/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+PIDS="$PIDS $!"
+ros2 run ros_gz_bridge parameter_bridge /model/x500_2/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+PIDS="$PIDS $!"
+
+echo "Starting tf broadcasting nodes for the drones..."
+
+source ~/cs1980/cs1980_ws/install/setup.bash
+ros2 run virtual_gps tf_pose_broadcaster --ros-args -p robot_name:='x500_1' &
+PIDS="$PIDS $!"
+ros2 run virtual_gps tf_pose_broadcaster --ros-args -p robot_name:='x500_2' &
 PIDS="$PIDS $!"
 
 echo "All drones and systems started."
