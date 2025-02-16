@@ -74,14 +74,14 @@ In order for to get appropriate gazebo simulation model positions, we need to ad
 Add the following xml code to the file `model.sdf` at the path `~/PX4-Autopilot/Tools/simulation/gz/models/x500`.
 Near the top of the file is a list of plugins and can be added in that area.
 
-`<plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
-            <publish_model_pose>true</publish_model_pose>
-            <publish_link_pose>false</publish_link_pose>
-            <publish_collision_pose>false</publish_collision_pose>
-            <publish_visual_pose>false</publish_visual_pose>
-            <publish_nested_model_pose>true</publish_nested_model_pose>
-</plugin>
-`
+    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+            <publish_model_pose>true</publish_model_pose>  
+            <publish_link_pose>false</publish_link_pose>   
+            <publish_collision_pose>false</publish_collision_pose>      
+            <publish_visual_pose>false</publish_visual_pose>     
+            <publish_nested_model_pose>true</publish_nested_model_pose>     
+    </plugin>
+
 
 ### QGroundControl
 
