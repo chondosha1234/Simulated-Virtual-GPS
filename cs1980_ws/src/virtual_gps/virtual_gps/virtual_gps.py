@@ -6,6 +6,7 @@ from std_msgs.msg import Float32
 from tf2_msgs.msg import TFMessage
 
 import math
+import numpy as np
 
 class VirtualGPSNode(Node):
 
@@ -40,11 +41,13 @@ class VirtualGPSNode(Node):
         self.sensor_subscription = self.create_subscription(Float32, '/dist', self.distance_callback, 10)
         self.sensor_subscription
 
+        # 
+
     def timer_callback(self):
         target = TransformStamped()
 
         # Determine the Cartesian coordinates of the target robot
-        target = trilateration_solver(self.x500_0_pose, self.x500_1_pose, self.x500_2_pose, self.x500_3_pose, 
+        target = self.trilateration_solver(self.x500_0_pose, self.x500_1_pose, self.x500_2_pose, self.x500_3_pose, 
                                     self.distance0, self.distance1, self.distance2, self.distance3)
 
         self.gps_publisher.publish(target)
@@ -66,7 +69,65 @@ class VirtualGPSNode(Node):
     
     def distance_callback(self, msg):
 
+    #
+
     def trilateration_solver(drone0, drone1, drone2, drone3, r0, r1, r2, r3):
+        # Get the cartesian coordinates of all the four drones
+        x0 = drone0.transfrom.translation.x
+        y0 = drone0.transfrom.translation.y
+        z0 = drone0.transfrom.translation.z
+
+        x1 = drone1.transfrom.translation.x
+        y1 = drone1.transfrom.translation.y
+        z1 = drone1.transfrom.translation.z
+
+        x2 = drone2.transfrom.translation.x
+        y2 = drone2.transfrom.translation.y
+        z2 = drone2.transfrom.translation.z
+
+        x3 = drone3.transfrom.translation.x
+        y3 = drone3.transfrom.translation.y
+        z3 = drone3.transfrom.translation.z
+
+        p0 = np.array([x0, y0, z0])
+        p1 = np.array([x1, y1, z1])
+        p2 = np.aaray([x2, y2, z2])
+
+        # Perform a world frame transform to simplify calculation
+        # p0 is the new origin, p1 is on the x axis, and p2 is on the x-y plane
+        # ex, ey, and ez are unit vectors along x axis, y axis, and z axis respectively
+        # In this world frame, p0 (0, 0, 0), p1 (d, 0, 0), p2 (i, j, 0)
+        ex = (p1 - p0) / (np.linalg.norm(p1 - p0))
+        i = np.dot(ex, p2 - p0)
+        ey = (p2 - p0 - i * ex) / (np.linalg.norm(p2 - p0 - i * ex))
+        ez = np.cross(ex, ey)
+        d = np.linale.norm(p1 - p0)
+        j = np.dot(ey, p2 - p0)
+
+        # Plug and chug using above values
+        x = (pow(r0, 2) - pow(r1, 2) + pow(d, 2)) / (2 * d)
+        y = (pow(r0, 2) - pow(r2, 2) + pow(i, 2) + pow(j ,2) - 2 * i * x) / (2 * j)
+
+        # There will be two possible solutions for z
+        z_a = np.sqrt(pow(r0, 2) - pow(x, 2) - pow(y, 2))
+        z_b = -1 * np.sqrt(pow(r0, 2) - pow(x, 2) - pow(y, 2))
+
+        # triPt is an array with the cartesian coordinate in the original world frame (before this transformation) of the trilateration point
+        triPt_a = p0 + x * ex + y * ey + z_a * ez
+        triPt_b = p0 + x * ex + y * ey + z_b * ez
+
+        if pow((x3 - x), 2) + pow((y3 - y), 2) + pow((z3 - z_a), 2) == pow(r3, 2):
+            z = z_a
+        else:
+            z = z_b
+        
+        target = TransformStamped()
+        target.transform.translation.x = x
+        target.transform.translation.y = y
+        target.transform.translation.z = z
+
+        return target
+
     
 def main(args=None):
     rclpy.init(args=args)
