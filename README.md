@@ -55,6 +55,16 @@ Install instructions:
 
 `sudo apt install ros-jazzy-tf2-ros ros-jazzy-tf2-tools`
 
+### Raspimouse
+
+raspimouse is a small ground robot. It was chosen for its simplicity and gz compatible models. 
+
+Install instructions:
+
+`sudo apt install ros-jazzy-raspimouse-*`
+
+There is a launch file in our code which is borrowed and adapted from the raspimouse provided launch files. It works from our project because it automatically locates the necessary files that are installed through this apt command.
+
 ### PX4-Autopilot
 
 PX4 is the flight control system used by the Holybro x500 quadcopter drone. We have selected this model because the sponsor has several physical models, and some of the team members have experience working with it. 
