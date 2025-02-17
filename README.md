@@ -70,6 +70,19 @@ After that you should run this setup script to install all other necessary depen
 
 `bash ./PX4-Autopilot/Tools/setup/ubuntu.sh`
 
+In order for to get appropriate gazebo simulation model positions, we need to add a plugin to the model.sdf file for the x500 drone. 
+Add the following xml code to the file `model.sdf` at the path `~/PX4-Autopilot/Tools/simulation/gz/models/x500`.
+Near the top of the file is a list of plugins and can be added in that area.
+
+    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+            <publish_model_pose>true</publish_model_pose>  
+            <publish_link_pose>false</publish_link_pose>   
+            <publish_collision_pose>false</publish_collision_pose>      
+            <publish_visual_pose>false</publish_visual_pose>     
+            <publish_nested_model_pose>true</publish_nested_model_pose>     
+    </plugin>
+
+
 ### QGroundControl
 
 This is an application which is used as a Ground Control Station (GCS) for flying drones. A GCS is often necessary when programmatically controlling a flying drone, becuase if it loses connection or control, it needs a fallback control system so the operator can land the drone safely. In some cases the GCS could be a remote controller, but this is an application that allows monitoring of the drone on a map and provides or mission control for end users. This application was chosen due to team member's familiarity. 
