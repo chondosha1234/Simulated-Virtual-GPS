@@ -16,15 +16,42 @@ class SensorNode(Node):
     def __init__(self):
         super().__init__('sensor')
 
+        # this will be the ground robot name 
+        self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
+
+        self.robot_pose = TransformStamped()
+
         # Pose variables to keep track of drone positions 
-        self.x500_0_pose = TransformStamped()
         self.x500_1_pose = TransformStamped()
         self.x500_2_pose = TransformStamped()
         self.x500_3_pose = TransformStamped()
+        self.x500_4_pose = TransformStamped()
 
         # publisher to topic that virtual_gps will subscribe to -- msg type TBD, using float for now
         # change topic name?
-        self.x500_publisher = self.create_publisher(Float32, '/dist', 10)
+        self.x500_1_publisher = self.create_publisher(
+            Float32, 
+            f'/dist/{self.robot_name}/x500_1', 
+            10
+        ) 
+
+        self.x500_2_publisher = self.create_publisher(
+            Float32, 
+            f'/dist/{self.robot_name}/x500_2', 
+            10
+        ) 
+
+        self.x500_3_publisher = self.create_publisher(
+            Float32, 
+            f'/dist/{self.robot_name}/x500_3', 
+            10
+        ) 
+
+        self.x500_4_publisher = self.create_publisher(
+            Float32, 
+            f'/dist/{self.robot_name}/x500_4', 
+            10
+        ) 
 
         # subscriber to '/tf' which contains robot positions
         self.x500_subscriber = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
@@ -39,42 +66,48 @@ class SensorNode(Node):
         #print("inside callback")
         # robot name in field like msg.child_frame_id or msg.transforms.child_frame_id
         for transform in msg.transforms:
-            robot_name = transform.child_frame_id
+            name = transform.child_frame_id
 
             # here for testing purposes
             #print("Robot name: ", robot_name)
         
             # setting pose variable equal to msg (should be of type pose)
             # id names incorrect?
-            if robot_name == 'x500_0':
-                self.x500_0_pose = transform
-            elif robot_name == 'x500_1':
+            if name == 'x500_1':
                 self.x500_1_pose = transform
-            elif robot_name == 'x500_2':
+            elif name == 'x500_2':
                 self.x500_2_pose = transform
-            elif robot_name == 'x500_3':
+            elif name == 'x500_3':
                 self.x500_3_pose = transform
+            elif name == 'x500_4':
+                self.x500_4_pose = transform
+            elif name == self.robot_name:
+                self.robot_pose = transform
             else:
                 print("tf message robot name error.")
 
 
     def timer_callback(self):
 
-        # calculate distance for every robot pair -- currently just 0 and 1 for testing purposes
-        dist0_1 = self.calculate_distance(self.x500_0_pose, self.x500_1_pose)
+        # calculate distance from target robot to every flying robot
+        dist1 = self.calculate_distance(self.robot_pose, self.x500_1_pose)
+        dist2 = self.calculate_distance(self.robot_pose, self.x500_2_pose)
+        dist3 = self.calculate_distance(self.robot_pose, self.x500_3_pose)
+        dist4 = self.calculate_distance(self.robot_pose, self.x500_4_pose)
 
-        # distances for all robot pairs
-        # dist0_2 = self.calculate_distance(self.x500_0_pose, self.x500_2_pose)
-        # dist0_3 = self.calculate_distance(self.x500_0_pose, self.x500_3_pose)
-        # dist1_2 = self.calculate_distance(self.x500_1_pose, self.x500_2_pose)
-        # dist1_3 = self.calculate_distance(self.x500_1_pose, self.x500_3_pose)
-        # dist2_3 = self.calculate_distance(self.x500_2_pose, self.x500_3_pose)
+        # publish distance to each flying robot to the topic for it 
+        msg = Float32() 
+        msg.data = dist1
+        self.x500_1_publisher.publish(msg)
 
-        # publish distances to the GPS (msg type and format TBD) -- using float for now
-        # distances will be calculated and published to '/dist' for virtual_gps 
-        msg = Float32() # ?
-        msg.data = dist0_1
-        self.x500_publisher.publish(msg)
+        msg.data = dist2
+        self.x500_2_publisher.publish(msg)
+
+        msg.data = dist3
+        self.x500_3_publisher.publish(msg)
+
+        msg.data = dist4
+        self.x500_4_publisher.publish(msg)
         
         print(f"distance calculated: {dist0_1}")
         
