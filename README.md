@@ -65,6 +65,22 @@ Install instructions:
 
 There is a launch file in our code which is borrowed and adapted from the raspimouse provided launch files. It works from our project because it automatically locates the necessary files that are installed through this apt command.
 
+For our project we need to add a PosePublisher for the raspimouse so we can get its Pose from the gazebo simulation.
+This can be done by altering the file `raspimouse.urdf.xacro` at the path `/opt/ros/jazzy/share/raspimouse_description/urdf`.
+Scroll down to where it says `<!-- =============== Gazebo =============== -->` and add the following lines.
+
+      <gazebo>
+        <plugin name="gz::sim::systems::PosePublisher" filename="gz-sim-pose-publisher-system">
+          <publish_model_pose>true</publish_model_pose>
+          <publish_link_pose>false</publish_link_pose>
+          <publish_collision_pose>false</publish_collision_pose>
+          <publish_visual_pose>false</publish_visual_pose>
+          <publish_nested_model_pose>true</publish_nested_model_pose>
+        </plugin>
+      </gazebo>
+
+
+
 ### PX4-Autopilot
 
 PX4 is the flight control system used by the Holybro x500 quadcopter drone. We have selected this model because the sponsor has several physical models, and some of the team members have experience working with it. 
@@ -132,6 +148,18 @@ Go to the PX4-Autopilot folder and run this make command.
 
 It should launch a gazebo window automatically and have a quadcopter drone sitting at the origin point. 
 Sometimes on the first try it may fail. Just end the process and run again. 
+
+## Further Tests and Experiments 
+
+There is a scripts folder which has shell scripts. 
+These build and launch all the necessary tools and frameworks for our simulations. 
+These were made to avoid having to open dozens of terminal windows. 
+The output from these processes is sent to log files in the top level directory.
+There are also several ROS2 launch files in our project which start up multiple ROS2 nodes for our experiments. 
+The launch files are also called in the scripts at appropriate places. 
+
+These scripts are found in the `scripts/` folder and can be easily run with `./start.sh` for example.
+
 
 
 
