@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # define log directory and make if necessary 
-LOG_DIR="$HOME/cs1980/logs"
+LOG_DIR="$HOME/logs"
 mkdir -p "$LOG_DIR"
 
 # function to clean up all processes on exit 
@@ -22,7 +22,7 @@ source install/setup.bash
 
 echo "Launching raspimouse and gz simulation..."
 
-ros2 launch virtual_gps raspimouse_default.launch.py > "$LOG_DIR/raspimouse.log" 2>&1 &
+ros2 launch virtual_gps raspimouse_default_headless.launch.py > "$LOG_DIR/raspimouse.log" 2>&1 &
 PIDS="$PIDS $!"
 
 echo "Launching MAVROS connections..."
@@ -49,13 +49,13 @@ echo "Launching PX4 models for the X500 drones..."
 
 #cd ~/PX4-Autopilot && make px4_sitl gz_x500 > "$LOG_DIR/px4_drone1.log" 2>&1 &
 #PIDS="$PIDS $!"
-cd ~/PX4-Autopilot && PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="0,3" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 1 > "$LOG_DIR/px4_drone1.log" 2>&1 &
+cd ~/PX4-Autopilot && HEADLESS=1 PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="0,3" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 1 > "$LOG_DIR/px4_drone1.log" 2>&1 &
 PIDS="$PIDS $!"
-cd ~/PX4-Autopilot && PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="3,0" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 2 > "$LOG_DIR/px4_drone2.log" 2>&1 & 
+cd ~/PX4-Autopilot && HEADLESS=1 PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="3,0" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 2 > "$LOG_DIR/px4_drone2.log" 2>&1 & 
 PIDS="$PIDS $!"
-cd ~/PX4-Autopilot && PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="0,-3" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 3 > "$LOG_DIR/px4_drone3.log" 2>&1 & 
+cd ~/PX4-Autopilot && HEADLESS=1 PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="0,-3" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 3 > "$LOG_DIR/px4_drone3.log" 2>&1 & 
 PIDS="$PIDS $!"
-cd ~/PX4-Autopilot && PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="-3,0" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 4 > "$LOG_DIR/px4_drone4.log" 2>&1 & 
+cd ~/PX4-Autopilot && HEADLESS=1 PX4_SYS_AUTOSTART=4001 PX4_GZ_MODEL_POSE="-3,0" PX4_SIM_MODEL=gz_x500 ./build/px4_sitl_default/bin/px4 -i 4 > "$LOG_DIR/px4_drone4.log" 2>&1 & 
 PIDS="$PIDS $!"
 
 sleep 2

@@ -19,6 +19,8 @@ class SensorNode(Node):
         # this will be the ground robot name 
         self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
 
+        print(f"robot name: {self.robot_name}")
+
         self.robot_pose = TransformStamped()
 
         # Pose variables to keep track of drone positions 
@@ -68,11 +70,9 @@ class SensorNode(Node):
         for transform in msg.transforms:
             name = transform.child_frame_id
 
-            # here for testing purposes
-            #print("Robot name: ", robot_name)
+            print(f"transform name: {name}")
         
-            # setting pose variable equal to msg (should be of type pose)
-            # id names incorrect?
+            # setting pose variable equal to msg (should be of type TransformStamped)
             if name == 'x500_1':
                 self.x500_1_pose = transform
             elif name == 'x500_2':
@@ -108,8 +108,6 @@ class SensorNode(Node):
 
         msg.data = dist4
         self.x500_4_publisher.publish(msg)
-        
-        print(f"distance calculated: {dist0_1}")
         
 
     # function to calculate distance between any 2 robots passed to it
