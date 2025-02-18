@@ -1,10 +1,11 @@
 import rclpy
 from rclpy.node import Node
 
+from geometry_msgs.msg import Pose
 from geometry_msgs.msg import TransformStamped
-from std_msgs.msg import Float32
 from tf2_msgs.msg import TFMessage
 
+from std_msgs.msg import Float32
 import math
 import numpy as np
 
@@ -13,20 +14,21 @@ class VirtualGPSNode(Node):
     def __init__(self):
         super().__init__('virtual_gps_node')
 
+        self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
+
         # Pose variables to keep track of drone positions
-        self.x500_0_pose = TransformStamped()
         self.x500_1_pose = TransformStamped()
         self.x500_2_pose = TransformStamped()
         self.x500_3_pose = TransformStamped()
+        self.x500_4_pose = TransformStamped()
 
         # Distance variables to keep track of a distance to the target robot for each drone
-        self.distance0 = Float32()
         self.distance1 = Float32()
         self.distance2 = Float32()
         self.distance3 = Float32()
+        self.distance4 = Float32()
 
         # Publisher to topic '/gps' that Error Measurement Node will subscribe to
-        # Message type is TransformStamped?
         self.gps_publisher = self.create_publisher(TransformStamped, '/gps', 10)
 
         # Timer that runs callback function every 200ms
@@ -37,18 +39,28 @@ class VirtualGPSNode(Node):
         self.x500_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
         self.x500_subscription
 
-        # Subscriber to topic '/dist' which contains the distance between the target robot and a specific drone
-        self.sensor_subscription = self.create_subscription(Float32, '/dist', self.distance_callback, 10)
-        self.sensor_subscription
+        # Subscriber to topic '/dist/{self.robot_name}/x500_1'
+        self.sensor_subscription_1 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_1', self.distance_callback_1, 10)
+        self.sensor_subscription_1
 
-        # 
+        # Subscriber to topic '/dist/{self.robot_name}/x500_2'
+        self.sensor_subscription_2 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_2', self.distance_callback_2, 10)
+        self.sensor_subscription_2
+
+        # Subscriber to topic '/dist/{self.robot_name}/x500_3'
+        self.sensor_subscription_3 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_3', self.distance_callback_3, 10)
+        self.sensor_subscription_3
+
+        # Subscriber to topic '/dist/{self.robot_name}/x500_4'
+        self.sensor_subscription_4 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_4', self.distance_callback_4, 10)
+        self.sensor_subscription_4
 
     def timer_callback(self):
         target = TransformStamped()
 
         # Determine the Cartesian coordinates of the target robot
-        target = self.trilateration_solver(self.x500_0_pose, self.x500_1_pose, self.x500_2_pose, self.x500_3_pose, 
-                                    self.distance0, self.distance1, self.distance2, self.distance3)
+        target = self.trilateration_solver(self.x500_1_pose, self.x500_2_pose, self.x500_3_pose, self.x500_4_pose, 
+                                    self.distance1, self.distance2, self.distance3, self.distance4)
 
         self.gps_publisher.publish(target)
     
@@ -56,20 +68,28 @@ class VirtualGPSNode(Node):
         for transform in msg.transforms:
             drone_name = transform.child_frame_id
 
-            if robot_name == 'x500_0':
-                self.x500_0_pose = transform
-            elif robot_name == 'x500_1':
+            if robot_name == 'x500_1':
                 self.x500_1_pose = transform
             elif robot_name == 'x500_2':
                 self.x500_2_pose = transform
             elif robot_name == 'x500_3':
                 self.x500_3_pose = transform
+            elif robot_name == 'x500_4':
+                self.x500_4_pose = transform
             else:
                 print("tf message robot name error")
     
-    def distance_callback(self, msg):
+    def distance_callback_1(self, msg):
+        self.distance1 = msg.data
 
-    #
+    def distance_callback_2(self, msg):
+        self.distance2 = msg.data
+
+    def distance_callback_3(self, msg):
+        self.distance3 = msg.data
+
+    def distance_callback_4(self, msg):
+        self.distance4 = msg.data
 
     def trilateration_solver(drone0, drone1, drone2, drone3, r0, r1, r2, r3):
         # Get the cartesian coordinates of all the four drones
