@@ -133,11 +133,11 @@ def generate_launch_description():
         parameters=[{'robot_description': description_loader.load()}],
     )
 
-    spawn_joint_state_broadcaster = ExecuteProcess(
-        cmd=['ros2 run controller_manager spawner joint_state_broadcaster'],
-        shell=True,
-        output='screen',
-    )
+#    spawn_joint_state_broadcaster = ExecuteProcess(
+#        cmd=['ros2 run controller_manager spawner joint_state_broadcaster'],
+#        shell=True,
+#        output='screen',
+#    )
 
     spawn_diff_drive_controller = ExecuteProcess(
         cmd=['ros2 run controller_manager spawner diff_drive_controller'],
@@ -197,7 +197,7 @@ def generate_launch_description():
             gz_sim,
             gz_spawn_entity,
             robot_state_publisher,
-            spawn_joint_state_broadcaster,
+ #           spawn_joint_state_broadcaster,
             spawn_diff_drive_controller,
  #           rviz,
             bridge,

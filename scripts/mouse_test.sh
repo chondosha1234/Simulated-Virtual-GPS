@@ -66,6 +66,9 @@ PIDS="$PIDS $!"
 ros2 run virtual_gps sensor --ros-args -p robot_name:='raspimouse' &
 PIDS="$PIDS $!"
 
+ros2 run virtual_gps virtual_gps --ros-args -p robot_name:='raspimouse' &
+PIDS="$PIDS $!"
+
 echo "All drones and systems started."
 echo "Press Ctrl+C to shut everything down."
 

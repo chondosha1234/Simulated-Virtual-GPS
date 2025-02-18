@@ -76,7 +76,8 @@ PIDS="$PIDS $!"
 
 echo "Launching ROS2 launch file 'virtual_gps.launch.py'"
 
-ros2 launch virtualGPS virtual_gps.launch.py > "$LOG_DIR/ros2_launch.log" 2>&1 &
+source ~/cs1980/cs1980_ws/install/setup.bash
+ros2 launch virtual_gps virtual_gps.launch.py > "$LOG_DIR/ros2_launch.log" 2>&1 &
 PIDS="$PIDS $!"
 
 echo "All drones and systems started."

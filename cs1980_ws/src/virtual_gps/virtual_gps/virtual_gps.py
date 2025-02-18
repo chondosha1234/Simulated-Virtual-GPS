@@ -16,6 +16,8 @@ class VirtualGPSNode(Node):
 
         self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
 
+        self.get_logger().info(f'robot name in gps: {self.robot_name}')
+
         # Pose variables to keep track of drone positions
         self.x500_1_pose = TransformStamped()
         self.x500_2_pose = TransformStamped()
@@ -23,10 +25,10 @@ class VirtualGPSNode(Node):
         self.x500_4_pose = TransformStamped()
 
         # Distance variables to keep track of a distance to the target robot for each drone
-        self.distance1 = Float32()
-        self.distance2 = Float32()
-        self.distance3 = Float32()
-        self.distance4 = Float32()
+        self.distance1 = 0.0
+        self.distance2 = 0.0
+        self.distance3 = 0.0
+        self.distance4 = 0.0
 
         # Publisher to topic '/gps' that Error Measurement Node will subscribe to
         self.gps_publisher = self.create_publisher(TransformStamped, '/gps', 10)
@@ -55,7 +57,10 @@ class VirtualGPSNode(Node):
         self.sensor_subscription_4 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_4', self.distance_callback_4, 10)
         self.sensor_subscription_4
 
+
     def timer_callback(self):
+        self.get_logger().info('gps timer callback')
+
         target = TransformStamped()
 
         # Determine the Cartesian coordinates of the target robot
@@ -64,21 +69,24 @@ class VirtualGPSNode(Node):
 
         self.gps_publisher.publish(target)
     
-    def pose_callback(self, msg):
-        for transform in msg.transforms:
-            drone_name = transform.child_frame_id
 
-            if robot_name == 'x500_1':
+    def pose_callback(self, msg):
+
+        for transform in msg.transforms:
+            name = transform.child_frame_id
+
+            if name == 'x500_1':
                 self.x500_1_pose = transform
-            elif robot_name == 'x500_2':
+            elif name == 'x500_2':
                 self.x500_2_pose = transform
-            elif robot_name == 'x500_3':
+            elif name == 'x500_3':
                 self.x500_3_pose = transform
-            elif robot_name == 'x500_4':
+            elif name == 'x500_4':
                 self.x500_4_pose = transform
-            else:
-                print("tf message robot name error")
+            #else:
+                #print("tf message robot name error")
     
+
     def distance_callback_1(self, msg):
         self.distance1 = msg.data
 
@@ -91,27 +99,27 @@ class VirtualGPSNode(Node):
     def distance_callback_4(self, msg):
         self.distance4 = msg.data
 
-    def trilateration_solver(drone0, drone1, drone2, drone3, r0, r1, r2, r3):
+    def trilateration_solver(self, drone0, drone1, drone2, drone3, r0, r1, r2, r3):
         # Get the cartesian coordinates of all the four drones
-        x0 = drone0.transfrom.translation.x
-        y0 = drone0.transfrom.translation.y
-        z0 = drone0.transfrom.translation.z
+        x0 = drone0.transform.translation.x
+        y0 = drone0.transform.translation.y
+        z0 = drone0.transform.translation.z
 
-        x1 = drone1.transfrom.translation.x
-        y1 = drone1.transfrom.translation.y
-        z1 = drone1.transfrom.translation.z
+        x1 = drone1.transform.translation.x
+        y1 = drone1.transform.translation.y
+        z1 = drone1.transform.translation.z
 
-        x2 = drone2.transfrom.translation.x
-        y2 = drone2.transfrom.translation.y
-        z2 = drone2.transfrom.translation.z
+        x2 = drone2.transform.translation.x
+        y2 = drone2.transform.translation.y
+        z2 = drone2.transform.translation.z
 
-        x3 = drone3.transfrom.translation.x
-        y3 = drone3.transfrom.translation.y
-        z3 = drone3.transfrom.translation.z
+        x3 = drone3.transform.translation.x
+        y3 = drone3.transform.translation.y
+        z3 = drone3.transform.translation.z
 
         p0 = np.array([x0, y0, z0])
         p1 = np.array([x1, y1, z1])
-        p2 = np.aaray([x2, y2, z2])
+        p2 = np.array([x2, y2, z2])
 
         # Perform a world frame transform to simplify calculation
         # p0 is the new origin, p1 is on the x axis, and p2 is on the x-y plane
@@ -121,7 +129,7 @@ class VirtualGPSNode(Node):
         i = np.dot(ex, p2 - p0)
         ey = (p2 - p0 - i * ex) / (np.linalg.norm(p2 - p0 - i * ex))
         ez = np.cross(ex, ey)
-        d = np.linale.norm(p1 - p0)
+        d = np.linalg.norm(p1 - p0)
         j = np.dot(ey, p2 - p0)
 
         # Plug and chug using above values

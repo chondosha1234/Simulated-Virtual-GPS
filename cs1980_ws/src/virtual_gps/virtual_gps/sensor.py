@@ -19,7 +19,7 @@ class SensorNode(Node):
         # this will be the ground robot name 
         self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
 
-        print(f"robot name: {self.robot_name}")
+        self.get_logger().info(f'robot name in sensor: {self.robot_name}')
 
         self.robot_pose = TransformStamped()
 
@@ -70,7 +70,7 @@ class SensorNode(Node):
         for transform in msg.transforms:
             name = transform.child_frame_id
 
-            print(f"transform name: {name}")
+            #print(f"transform name: {name}")
         
             # setting pose variable equal to msg (should be of type TransformStamped)
             if name == 'x500_1':
@@ -83,11 +83,13 @@ class SensorNode(Node):
                 self.x500_4_pose = transform
             elif name == self.robot_name:
                 self.robot_pose = transform
-            else:
-                print("tf message robot name error.")
+            #else:
+                #print("tf message robot name error.")
 
 
     def timer_callback(self):
+
+        self.get_logger().info('sensor timer callback')
 
         # calculate distance from target robot to every flying robot
         dist1 = self.calculate_distance(self.robot_pose, self.x500_1_pose)
@@ -131,7 +133,7 @@ class SensorNode(Node):
         euclidean_distance = math.sqrt((x_value + y_value + z_value)) 
 
         # here for testing purposes
-        #print(euclidean_distance)
+        self.get_logger().info(f'sensor distance calc: {euclidean_distance}')
         
         return euclidean_distance
 
