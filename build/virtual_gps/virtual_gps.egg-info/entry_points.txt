@@ -1,0 +1,6 @@
+[console_scripts]
+drone_control = virtual_gps.drone_control:main
+mouse_control = virtual_gps.mouse_control:main
+sensor = virtual_gps.sensor:main
+tf_pose_broadcaster = virtual_gps.tf_pose_broadcaster:main
+virtual_gps = virtual_gps.virtual_gps:main
