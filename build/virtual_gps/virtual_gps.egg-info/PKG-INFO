@@ -1,8 +1,0 @@
-Metadata-Version: 2.1
-Name: virtual-gps
-Version: 0.0.0
-Summary: Simulated virtual GPS with drones - CS 1980 Capstone project
-Maintainer: Jonathan Miller
-Maintainer-email: jjm267@pitt.edu
-License: Apache-2.0
-License-File: LICENSE
