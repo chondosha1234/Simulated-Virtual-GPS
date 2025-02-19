@@ -144,15 +144,17 @@ class VirtualGPSNode(Node):
         triPt_a = p0 + x * ex + y * ey + z_a * ez
         triPt_b = p0 + x * ex + y * ey + z_b * ez
 
-        if pow((x3 - x), 2) + pow((y3 - y), 2) + pow((z3 - z_a), 2) == pow(r3, 2):
-            z = z_a
+        d_a = pow((x3 - x), 2) + pow((y3 - y), 2) + pow((z3 - z_a), 2) - pow(r3, 2)
+        d_b = pow((x3 - x), 2) + pow((y3 - y), 2) + pow((z3 - z_b), 2) - pow(r3, 2)
+        if d_a < d_b:
+            triPt = triPt_a
         else:
-            z = z_b
+            triPt = triPt_b
         
         target = TransformStamped()
-        target.transform.translation.x = x
-        target.transform.translation.y = y
-        target.transform.translation.z = z
+        target.transform.translation.x = triPt[0]
+        target.transform.translation.y = triPt[1]
+        target.transform.translation.z = triPt[2]
 
         return target
 
