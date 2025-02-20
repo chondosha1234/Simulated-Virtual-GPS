@@ -28,6 +28,7 @@ setup(
             'sensor = virtual_gps.sensor:main',
             'tf_pose_broadcaster = virtual_gps.tf_pose_broadcaster:main',
             'mouse_control = virtual_gps.mouse_control:main',
+            'error_measure = virtual_gps.error_measure:main',
         ],
     },
 )
