@@ -10,6 +10,7 @@ import math
 import numpy as np
 
 class ErrorMeasureNode(Node):
+    
     def __init__(self):
         super().__init__('error_measure')
 
@@ -36,6 +37,7 @@ class ErrorMeasureNode(Node):
         # timer that runs callback function every 200ms
         self.timer = self.create_timer(0.2, self.timer_callback)
 
+
     def pose_callback(self, msg):
         for transform in msg.transforms:
             name = transform.child_frame_id
@@ -46,10 +48,12 @@ class ErrorMeasureNode(Node):
             if name == self.robot_name:
                 self.robot_actual_pose = transform
     
+
     def error_callback(self, msg):
         # setting pose variable equal to msg (should be of type TransformStamped)
-        self.robot_gps_pose = msg.data
+        self.robot_gps_pose = msg
     
+
     def timer_callback(self):
         self.get_logger().info('error measurement timer callback')
 
@@ -65,7 +69,7 @@ class ErrorMeasureNode(Node):
         self.error_publisher.publish(msg)
     
 
-    def calculate_error(gps_pose, actual_pose):
+    def calculate_error(self, gps_pose, actual_pose):
         # calculation is currently euclidean distance
         # am looking into potentially better error measurements for 3d points
         x1 = gps_pose.transform.translation.x
@@ -83,6 +87,7 @@ class ErrorMeasureNode(Node):
         euclidean_distance = math.sqrt((x_value + y_value + z_value)) 
         
         return euclidean_distance
+
 
 def main(args=None):
     rclpy.init(args=args)
