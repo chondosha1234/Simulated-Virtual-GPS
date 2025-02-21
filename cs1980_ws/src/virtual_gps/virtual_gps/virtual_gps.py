@@ -31,7 +31,7 @@ class VirtualGPSNode(Node):
         self.distance4 = 0.0
 
         # Publisher to topic '/gps' that Error Measurement Node will subscribe to
-        self.gps_publisher = self.create_publisher(TransformStamped, '/gps', 10)
+        self.gps_publisher = self.create_publisher(TransformStamped, f'/{self.robot_name}/gps', 10)
 
         # Timer that runs callback function every 200ms
         timer_period = 0.2

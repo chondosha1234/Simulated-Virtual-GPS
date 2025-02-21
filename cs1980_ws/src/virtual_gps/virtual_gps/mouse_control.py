@@ -1,43 +1,74 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import TwistStamped
+from geometry_msgs.msg import TransformStamped
 import time
 
 class RaspimouseMover(Node):
+
     def __init__(self):
         super().__init__('raspimouse_mover')
-        self.publisher_ = self.create_publisher(TwistStamped, '/cmd_vel', 10)
-        time.sleep(1)  # Allow time for ROS 2 setup
 
-    def move(self, linear_speed=0.1, angular_speed=0.0, duration=1.0):
+        self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
+
+        self.robot_pose = TransformStamped()
+
+        self.vel_publisher = self.create_publisher(TwistStamped, '/cmd_vel', 10)
+        
+        # get position from the gps node to guide movement 
+        self.pose_subscriber = self.create_subscription(
+            TransformStamped, 
+            f'/{self.robot_name}/gps',
+            self.pose_callback,
+            10
+        )
+        self.pose_subscriber 
+
+    
+    def pose_callback(self, msg):
+        self.robot_pose = msg
+
+
+    def move(self, linear_speed=0.1, angular_speed=0.0):
         """Publish velocity command for a given duration."""
         twist = TwistStamped()
         twist.twist.linear.x = linear_speed
         twist.twist.angular.z = angular_speed
-        self.publisher_.publish(twist)
-        time.sleep(duration)
+        self.vel_publisher.publish(twist)
+
 
     def stop(self):
         """Stop the robot."""
         twist = TwistStamped()
-        self.publisher_.publish(twist)
-        time.sleep(1)
+        self.vel_publisher.publish(twist)
+
 
     def execute_movement(self):
+
         """Moves the robot forward 1m, turns left, and moves forward again."""
         self.get_logger().info("Moving forward 1 meter...")
-        self.move(linear_speed=0.5, duration=10)  # 0.1 m/s * 10s = 1 meter
+        while self.robot_pose.transform.translation.x < 1.0:
+            self.get_logger().info(f'x pose: {self.robot_pose.transform.translation.x}')
+            self.move(linear_speed=0.2) 
+            rclpy.spin_once(self)
         self.stop()
 
         self.get_logger().info("Turning left 90 degrees...")
-        self.move(angular_speed=0.5, duration=10)  # Adjust timing for 90-degree turn
+        for i in range(15):
+            self.move(angular_speed=0.5) 
+            rclpy.spin_once(self)
+            time.sleep(0.2)  # send msg every 200ms for 3 seconds 
         self.stop()
 
         self.get_logger().info("Moving forward 1 meter in new direction...")
-        self.move(linear_speed=-0.1, duration=10)
+        while self.robot_pose.transform.translation.y > -1.0:
+            self.get_logger().info(f'y pose: {self.robot_pose.transform.translation.y}')
+            self.move(linear_speed=-0.1)
+            rclpy.spin_once(self)
         self.stop()
 
         self.get_logger().info("Movement sequence complete.")
+
 
 def main(args=None):
     rclpy.init(args=args)
