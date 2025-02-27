@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # define log directory and make if necessary 
-LOG_DIR="$HOME/logs"
+LOG_DIR="$HOME/Simulated-Virtual-GPS/logs"
 mkdir -p "$LOG_DIR"
 
 # function to clean up all processes on exit 
@@ -17,7 +17,7 @@ trap cleanup SIGINT
 
 echo "Building and sourcing virtualGPS package..."
 
-cd ~/cs1980/cs1980_ws && colcon build
+cd ~/Simulated-Virtual-GPS/cs1980_ws && colcon build
 source install/setup.bash 
 
 echo "Launching raspimouse and gz simulation..."

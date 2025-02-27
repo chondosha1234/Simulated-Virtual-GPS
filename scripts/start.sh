@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # define log directory and make if necessary 
-LOG_DIR="$HOME/cs1980/logs"
+LOG_DIR="$HOME/Simulated-Virtual-GPS/logs"
 mkdir -p "$LOG_DIR"
 
 # function to clean up all processes on exit 
@@ -17,7 +17,7 @@ trap cleanup SIGINT
 
 echo "Building and sourcing virtualGPS package..."
 
-cd ~/cs1980/cs1980_ws && colcon build
+cd ~/Simulated-Virtual-Gps/cs1980_ws && colcon build
 source install/setup.bash 
 
 echo "Launching raspimouse and gz simulation..."
@@ -76,7 +76,7 @@ PIDS="$PIDS $!"
 
 echo "Launching ROS2 launch file 'virtual_gps.launch.py'"
 
-source ~/cs1980/cs1980_ws/install/setup.bash
+source ~/Simulated-Virtual-GPS/cs1980_ws/install/setup.bash
 ros2 launch virtual_gps virtual_gps.launch.py > "$LOG_DIR/ros2_launch.log" 2>&1 &
 PIDS="$PIDS $!"
 
