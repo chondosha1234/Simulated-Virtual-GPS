@@ -16,7 +16,7 @@ trap cleanup SIGINT
 
 echo "Building and sourcing..."
 
-cd ~/cs1980/cs1980_ws && colcon build
+cd ~/Simulated-Virtual-GPS/cs1980_ws && colcon build
 source install/setup.bash
 
 echo "Launching raspimouse..."
@@ -54,7 +54,7 @@ PIDS="$PIDS $!"
 
 echo "Starting tf broadcasting nodes for the drones..."
 
-source ~/cs1980/cs1980_ws/install/setup.bash
+source ~/Simulated-Virtual-GPS/cs1980_ws/install/setup.bash
 ros2 run virtual_gps tf_pose_broadcaster --ros-args -p robot_name:='x500_1' &
 PIDS="$PIDS $!"
 ros2 run virtual_gps tf_pose_broadcaster --ros-args -p robot_name:='x500_2' &

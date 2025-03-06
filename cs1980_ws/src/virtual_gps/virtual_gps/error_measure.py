@@ -55,13 +55,13 @@ class ErrorMeasureNode(Node):
     
 
     def timer_callback(self):
-        self.get_logger().info('error measurement timer callback')
+        #self.get_logger().info('error measurement timer callback')
 
         # calculate error between actual ground robot location and gps location
         error = self.calculate_error(self.robot_gps_pose, self.robot_actual_pose)
 
         # here for testing purposes 
-        self.get_logger().info(f'sensor distance calc: {error}')
+        #self.get_logger().info(f'sensor distance calc: {error}')
         
         # publish error calculation to topic
         msg = Float32()

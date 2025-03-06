@@ -20,7 +20,7 @@ class Tf2PositionBroadcaster(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
         
         self.pose_sub = self.create_subscription(
-                Pose,# msg type
+                Pose,
                 f'/model/{self.robot_name}/pose',   # each robot will have its own topic 
                 self.pose_callback,
                 10

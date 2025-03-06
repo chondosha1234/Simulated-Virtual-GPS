@@ -70,6 +70,10 @@ def generate_launch_description():
         'spawn_z', default_value='0.02', description='Set initial position z.'
     )
 
+    declare_arg_robot_name = DeclareLaunchArgument(
+        'robot_name', default_value='raspimouse_1', description='Give robot name.'
+    )
+
     env = {
         'GZ_SIM_SYSTEM_PLUGIN_PATH': os.environ['LD_LIBRARY_PATH'],
         'GZ_SIM_RESOURCE_PATH': os.path.dirname(
@@ -78,7 +82,7 @@ def generate_launch_description():
         + ':'
         + os.path.join(get_package_share_directory('raspimouse_gazebo'), 'models')
         + ':'
-        + os.path.expanduser('~/PX4-Autopilot/Tools/simulation/gz/models/'),
+        + os.path.expanduser('~/PX4-Autopilot/Tools/simulation/gz/models/'),       # default world is here 
     }
 #    gui_config = os.path.join(
 #        get_package_share_directory('raspimouse_gazebo'), 'gui', 'gui.config'
@@ -103,7 +107,7 @@ def generate_launch_description():
             '-topic',
             '/robot_description',
             '-name',
-            'raspimouse',
+            LaunchConfiguration('robot_name'),
             '-x',
             LaunchConfiguration('spawn_x'),
             '-y',
@@ -177,7 +181,7 @@ def generate_launch_description():
             ComposableNode(
                 package='raspimouse_fake',
                 plugin='fake_raspimouse::Raspimouse',
-                name='raspimouse',
+                name=LaunchConfiguration('robot_name'),
             ),
         ],
         output='screen',
@@ -194,6 +198,7 @@ def generate_launch_description():
             declare_arg_spawn_x,
             declare_arg_spawn_y,
             declare_arg_spawn_z,
+            declare_arg_robot_name,
             gz_sim,
             gz_spawn_entity,
             robot_state_publisher,

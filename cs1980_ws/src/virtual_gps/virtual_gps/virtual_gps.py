@@ -59,7 +59,7 @@ class VirtualGPSNode(Node):
 
 
     def timer_callback(self):
-        self.get_logger().info('gps timer callback')
+        #self.get_logger().info('gps timer callback')
 
         target = TransformStamped()
 

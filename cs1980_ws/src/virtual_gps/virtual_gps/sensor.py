@@ -89,7 +89,7 @@ class SensorNode(Node):
 
     def timer_callback(self):
 
-        self.get_logger().info('sensor timer callback')
+        #self.get_logger().info('sensor timer callback')
 
         # calculate distance from target robot to every flying robot
         dist1 = self.calculate_distance(self.robot_pose, self.x500_1_pose)
@@ -133,7 +133,7 @@ class SensorNode(Node):
         euclidean_distance = math.sqrt((x_value + y_value + z_value)) 
 
         # here for testing purposes
-        self.get_logger().info(f'sensor distance calc: {euclidean_distance}')
+        #self.get_logger().info(f'sensor distance calc: {euclidean_distance}')
         
         return euclidean_distance
 
