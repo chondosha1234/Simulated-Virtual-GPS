@@ -47,8 +47,9 @@ class RaspimouseMover(Node):
 
         """Moves the robot forward 1m, turns left, and moves forward again."""
         self.get_logger().info("Moving forward 1 meter...")
-        while self.robot_pose.transform.translation.x < 1.0:
-            self.get_logger().info(f'x pose: {self.robot_pose.transform.translation.x}')
+        #while self.robot_pose.transform.translation.x < 1.0:
+        for i in range(50):
+            #self.get_logger().info(f'x pose: {self.robot_pose.transform.translation.x}')
             self.move(linear_speed=0.2) 
             rclpy.spin_once(self)
         self.stop()
@@ -61,8 +62,9 @@ class RaspimouseMover(Node):
         self.stop()
 
         self.get_logger().info("Moving forward 1 meter in new direction...")
-        while self.robot_pose.transform.translation.y > -1.0:
-            self.get_logger().info(f'y pose: {self.robot_pose.transform.translation.y}')
+        #while self.robot_pose.transform.translation.y > -1.0:
+        for i in range(50):
+            #self.get_logger().info(f'y pose: {self.robot_pose.transform.translation.y}')
             self.move(linear_speed=-0.1)
             rclpy.spin_once(self)
         self.stop()

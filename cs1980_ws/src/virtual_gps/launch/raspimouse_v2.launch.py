@@ -36,6 +36,7 @@ from raspimouse_description.robot_description_loader import RobotDescriptionLoad
 
 
 def generate_launch_description():
+
     declare_arg_lidar = DeclareLaunchArgument(
         'lidar',
         default_value='none',
@@ -70,10 +71,6 @@ def generate_launch_description():
         'spawn_z', default_value='0.02', description='Set initial position z.'
     )
 
-    declare_arg_robot_name = DeclareLaunchArgument(
-        'robot_name', default_value='raspimouse_1', description='Give robot name.'
-    )
-
     env = {
         'GZ_SIM_SYSTEM_PLUGIN_PATH': os.environ['LD_LIBRARY_PATH'],
         'GZ_SIM_RESOURCE_PATH': os.path.dirname(
@@ -99,21 +96,41 @@ def generate_launch_description():
         shell=True,
     )
 
-    gz_spawn_entity = Node(
+    gz_spawn_entity1 = Node(
         package='ros_gz_sim',
         executable='create',
         output='screen',
         arguments=[
             '-topic',
-            '/robot_description',
+            '/raspimouse_1/robot_description',
             '-name',
-            LaunchConfiguration('robot_name'),
+            'raspimouse_1',
             '-x',
             LaunchConfiguration('spawn_x'),
             '-y',
             LaunchConfiguration('spawn_y'),
             '-z',
             LaunchConfiguration('spawn_z'),
+            '-allow_renaming',
+            'true',
+        ],
+    )
+
+    gz_spawn_entity2 = Node(
+        package='ros_gz_sim',
+        executable='create',
+        output='screen',
+        arguments=[
+            '-topic',
+            '/raspimouse_2/robot_description',
+            '-name',
+            'raspimouse_2',
+            '-x',
+            '2.0',
+            '-y',
+            '2.0',
+            '-z',
+            '0.02',
             '-allow_renaming',
             'true',
         ],
@@ -130,36 +147,47 @@ def generate_launch_description():
         'config/raspimouse_controllers.yaml'
     )
 
-    robot_state_publisher = Node(
+    robot_state_publisher1 = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
+        namespace='raspimouse_1',
+        output='screen',
+        parameters=[{'robot_description': description_loader.load()}],
+    )
+
+    robot_state_publisher2 = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        namespace='raspimouse_2',
         output='screen',
         parameters=[{'robot_description': description_loader.load()}],
     )
 
     
-    spawn_joint_state_broadcaster = ExecuteProcess(
+    spawn_joint_state_broadcaster1 = ExecuteProcess(
         cmd=['ros2 run controller_manager spawner joint_state_broadcaster'],
         shell=True,
         output='screen',
     )
 
-    spawn_diff_drive_controller = ExecuteProcess(
+    spawn_joint_state_broadcaster2 = ExecuteProcess(
+        cmd=['ros2 run controller_manager spawner joint_state_broadcaster'],
+        shell=True,
+        output='screen',
+    )
+
+    spawn_diff_drive_controller1 = ExecuteProcess(
         cmd=['ros2 run controller_manager spawner diff_drive_controller'],
         shell=True,
         output='screen',
     )
 
-#    rviz_config_file = (
-#        get_package_share_directory('raspimouse_gazebo') + '/config/config.rviz'
-#    )
-#    rviz = Node(
-#        package='rviz2',
-#        executable='rviz2',
-#        name='rviz2',
-#        output='screen',
-#        arguments=['-d', rviz_config_file],
-#    )
+    spawn_diff_drive_controller2 = ExecuteProcess(
+        cmd=['ros2 run controller_manager spawner diff_drive_controller'],
+        shell=True,
+        output='screen',
+    )
+
 
     bridge = Node(
         package='ros_gz_bridge',
@@ -173,16 +201,31 @@ def generate_launch_description():
         output='screen',
     )
 
-    container = ComposableNodeContainer(
-        name='fake_raspimouse_container',
-        namespace='',
+    container1 = ComposableNodeContainer(
+        name='fake_raspimouse_container_1',
+        namespace='raspimouse_1',
         package='rclcpp_components',
         executable='component_container_mt',
         composable_node_descriptions=[
             ComposableNode(
                 package='raspimouse_fake',
                 plugin='fake_raspimouse::Raspimouse',
-                name=LaunchConfiguration('robot_name'),
+                name='raspimouse_1',
+            ),
+        ],
+        output='screen',
+    )
+
+    container2 = ComposableNodeContainer(
+        name='fake_raspimouse_container_2',
+        namespace='raspimouse_2',
+        package='rclcpp_components',
+        executable='component_container_mt',
+        composable_node_descriptions=[
+            ComposableNode(
+                package='raspimouse_fake',
+                plugin='fake_raspimouse::Raspimouse',
+                name='raspimouse_2',
             ),
         ],
         output='screen',
@@ -199,14 +242,18 @@ def generate_launch_description():
             declare_arg_spawn_x,
             declare_arg_spawn_y,
             declare_arg_spawn_z,
-            declare_arg_robot_name,
             gz_sim,
-            gz_spawn_entity,
-            robot_state_publisher,
-            spawn_joint_state_broadcaster,
-            spawn_diff_drive_controller,
- #           rviz,
+            gz_spawn_entity1,
+            gz_spawn_entity2,
+            control_node1,
+            robot_state_publisher1,
+            robot_state_publisher2,
+            spawn_joint_state_broadcaster1,
+            spawn_joint_state_broadcaster2,
+            spawn_diff_drive_controller1,
+            spawn_diff_drive_controller2,
             bridge,
-            container,
+            container1,
+            container2,
         ]
     )
