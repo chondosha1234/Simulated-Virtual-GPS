@@ -24,14 +24,14 @@ class ErrorMeasureNode(Node):
         self.robot_gps_pose = TransformStamped()
         
         # publisher to topic that ? will subscribe to 
-        self.error_publisher = self.create_publisher(Float32, '/error_measure', 10)
+        self.error_publisher = self.create_publisher(Float32, f'/{self.robot_name}/error_measure', 10)
 
         # subscriber to topic '/tf' which contains robot positions
         self.robot_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
         self.robot_subscription
 
         # subscriber to topic '/gps' which contains estimated position of robot
-        self.gps_subscription = self.create_subscription(TransformStamped, '/gps', self.error_callback, 10)
+        self.gps_subscription = self.create_subscription(TransformStamped, f'/{self.robot_name}/gps', self.error_callback, 10)
         self.gps_subscription
 
         # timer that runs callback function every 200ms

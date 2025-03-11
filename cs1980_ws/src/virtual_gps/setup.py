@@ -25,6 +25,7 @@ setup(
         'console_scripts': [
             'drone_control = virtual_gps.drone_control:main',
             'virtual_gps = virtual_gps.virtual_gps:main',
+            'virtual_gps_v2 = virtual_gps.virtual_gps_v2:main',
             'sensor = virtual_gps.sensor:main',
             'tf_pose_broadcaster = virtual_gps.tf_pose_broadcaster:main',
             'mouse_control = virtual_gps.mouse_control:main',
