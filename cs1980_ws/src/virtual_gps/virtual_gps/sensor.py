@@ -24,13 +24,19 @@ class SensorNode(Node):
         self.robot_pose = TransformStamped()
 
         # Pose variables to keep track of drone positions 
+        self.x500_0_pose = TransformStamped()
         self.x500_1_pose = TransformStamped()
         self.x500_2_pose = TransformStamped()
         self.x500_3_pose = TransformStamped()
-        self.x500_4_pose = TransformStamped()
 
         # publisher to topic that virtual_gps will subscribe to -- msg type TBD, using float for now
         # change topic name?
+        self.x500_0_publisher = self.create_publisher(
+            Float32, 
+            f'/dist/{self.robot_name}/x500_0', 
+            10
+        ) 
+
         self.x500_1_publisher = self.create_publisher(
             Float32, 
             f'/dist/{self.robot_name}/x500_1', 
@@ -46,12 +52,6 @@ class SensorNode(Node):
         self.x500_3_publisher = self.create_publisher(
             Float32, 
             f'/dist/{self.robot_name}/x500_3', 
-            10
-        ) 
-
-        self.x500_4_publisher = self.create_publisher(
-            Float32, 
-            f'/dist/{self.robot_name}/x500_4', 
             10
         ) 
 
@@ -73,14 +73,14 @@ class SensorNode(Node):
             #print(f"transform name: {name}")
         
             # setting pose variable equal to msg (should be of type TransformStamped)
-            if name == 'x500_1':
+            if name == 'x500_0':
+                self.x500_0_pose = transform
+            elif name == 'x500_1':
                 self.x500_1_pose = transform
             elif name == 'x500_2':
                 self.x500_2_pose = transform
             elif name == 'x500_3':
                 self.x500_3_pose = transform
-            elif name == 'x500_4':
-                self.x500_4_pose = transform
             elif name == self.robot_name:
                 self.robot_pose = transform
             #else:
@@ -92,13 +92,16 @@ class SensorNode(Node):
         #self.get_logger().info('sensor timer callback')
 
         # calculate distance from target robot to every flying robot
+        dist0 = self.calculate_distance(self.robot_pose, self.x500_0_pose)
         dist1 = self.calculate_distance(self.robot_pose, self.x500_1_pose)
         dist2 = self.calculate_distance(self.robot_pose, self.x500_2_pose)
         dist3 = self.calculate_distance(self.robot_pose, self.x500_3_pose)
-        dist4 = self.calculate_distance(self.robot_pose, self.x500_4_pose)
 
         # publish distance to each flying robot to the topic for it 
         msg = Float32() 
+        msg.data = dist0
+        self.x500_0_publisher.publish(msg)
+
         msg.data = dist1
         self.x500_1_publisher.publish(msg)
 
@@ -107,9 +110,6 @@ class SensorNode(Node):
 
         msg.data = dist3
         self.x500_3_publisher.publish(msg)
-
-        msg.data = dist4
-        self.x500_4_publisher.publish(msg)
         
 
     # function to calculate distance between any 2 robots passed to it
