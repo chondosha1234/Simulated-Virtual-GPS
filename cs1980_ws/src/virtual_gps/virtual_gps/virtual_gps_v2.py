@@ -25,16 +25,16 @@ class VirtualGPSNode(Node):
         self.gps_publisher = self.create_publisher(TransformStamped, f'/{self.robot_name}/gps', 10)
         
         # placeholder for pose values
+        self.pose0 = TransformStamped()
         self.pose1 = TransformStamped()
         self.pose2 = TransformStamped()
         self.pose3 = TransformStamped()
-        self.pose4 = TransformStamped()
 
         # placeholder for dist valuea
+        self.dist0 = 0.0
         self.dist1 = 0.0
         self.dist2 = 0.0
         self.dist3 = 0.0
-        self.dist4 = 0.0
 
         # the buffer--list of tuples which hold pose and dist values
         self.buffer_list = []
@@ -45,6 +45,10 @@ class VirtualGPSNode(Node):
         # Subscriber to topic '/tf' which contains drone positions
         self.x500_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
         self.x500_subscription
+
+        # Subscriber to topic '/dist/{self.robot_name}/x500_0'
+        self.sensor_subscription_0 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_0', self.distance_callback_0, 10)
+        self.sensor_subscription_0
 
         # Subscriber to topic '/dist/{self.robot_name}/x500_1'
         self.sensor_subscription_1 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_1', self.distance_callback_1, 10)
@@ -58,10 +62,6 @@ class VirtualGPSNode(Node):
         self.sensor_subscription_3 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_3', self.distance_callback_3, 10)
         self.sensor_subscription_3
 
-        # Subscriber to topic '/dist/{self.robot_name}/x500_4'
-        self.sensor_subscription_4 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_4', self.distance_callback_4, 10)
-        self.sensor_subscription_4
-
         # Timer that runs callback function every 200ms
         timer_period = 0.2
         self.timer = self.create_timer(timer_period, self.timer_callback)
@@ -71,17 +71,17 @@ class VirtualGPSNode(Node):
         for transform in msg.transforms:
             name = transform.child_frame_id
 
-            if name == 'x500_1':
-                self.pose1 = transform
+            if name == 'x500_0':
+                self.pose0 = transform
                 self.pose_list[0] = 1
+            elif name == 'x500_1':
+                self.pose1 = transform
+                self.pose_list[1] = 1
             elif name == 'x500_2':
                 self.pose2 = transform
-                self.pose_list[1] = 1
+                self.pose_list[2] = 1
             elif name == 'x500_3':
                 self.pose3 = transform
-                self.pose_list[2] = 1
-            elif name == 'x500_4':
-                self.pose4 = transform
                 self.pose_list[3] = 1
         
         # count the number of drones in simulation
@@ -94,15 +94,15 @@ class VirtualGPSNode(Node):
         # given number of drones in simulation, add drone data to buffer
         # self.dist values from distance_callback functions
         if self.num_drones == 1:
-            self.buffer(self.buffer_list, self.pose1, self.dist1)
+            self.buffer(self.buffer_list, self.pose0, self.dist0)
         elif self.num_drones == 2:
+            self.buffer(self.buffer_list, self.pose0, self.dist0)
             self.buffer(self.buffer_list, self.pose1, self.dist1)
-            self.buffer(self.buffer_list, self.pose2, self.dist2)
         elif self.num_drones == 4:
+            self.buffer(self.buffer_list, self.pose0, self.dist0)
             self.buffer(self.buffer_list, self.pose1, self.dist1)
             self.buffer(self.buffer_list, self.pose2, self.dist2)
             self.buffer(self.buffer_list, self.pose3, self.dist3)
-            self.buffer(self.buffer_list, self.pose4, self.dist4)
 
     # timer only starts once buffer is filled
     # e.g. if only one drone, timer_callback won't be called until 3 previous values and current values in buffer
@@ -137,6 +137,9 @@ class VirtualGPSNode(Node):
 
         #self.get_logger().info(f'buffer: {buffer}')
 
+    def distance_callback_0(self, msg):
+        self.dist0 = msg.data
+
     def distance_callback_1(self, msg):
         self.dist1 = msg.data
 
@@ -145,9 +148,6 @@ class VirtualGPSNode(Node):
 
     def distance_callback_3(self, msg):
         self.dist3 = msg.data
-
-    def distance_callback_4(self, msg):
-        self.dist4 = msg.data
 
     def trilateration_solver(self, drone0, drone1, drone2, drone3, r0, r1, r2, r3):
         # Get the cartesian coordinates of all the four drones
