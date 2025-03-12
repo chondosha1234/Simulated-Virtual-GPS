@@ -1,3 +1,4 @@
+
 import rclpy
 from rclpy.node import Node
 
@@ -66,6 +67,10 @@ class VirtualGPSNode(Node):
         timer_period = 0.2
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
+        # timer that runs callback function every 250ms
+        timer_period2 = 0.25
+        self.timer2 = self.create_timer(timer_period2, self.timer_callback2)
+
     # if drone exists, save its position and other associated data in buffer
     def pose_callback(self, msg):
         for transform in msg.transforms:
@@ -83,7 +88,21 @@ class VirtualGPSNode(Node):
             elif name == 'x500_3':
                 self.pose3 = transform
                 self.pose_list[3] = 1
-        
+
+    # timer only starts once buffer is filled
+    # e.g. if only one drone, timer_callback won't be called until 3 previous values and current values in buffer
+    def timer_callback(self):
+        #self.get_logger().info('gps timer callback')
+        if self.filled == True:
+            target = TransformStamped()
+
+            # Determine the Cartesian coordinates of the target robot
+            target = self.trilateration_solver(self.buffer_list[0][0], self.buffer_list[1][0], self.buffer_list[2][0], self.buffer_list[3][0], 
+                                        self.buffer_list[0][1], self.buffer_list[1][1], self.buffer_list[2][1], self.buffer_list[3][1])
+            self.gps_publisher.publish(target)
+    
+    # counts number of drones and adds drone data to buffer
+    def timer_callback2(self):
         # count the number of drones in simulation
         i = 0
         for drone in self.pose_list:
@@ -103,18 +122,6 @@ class VirtualGPSNode(Node):
             self.buffer(self.buffer_list, self.pose1, self.dist1)
             self.buffer(self.buffer_list, self.pose2, self.dist2)
             self.buffer(self.buffer_list, self.pose3, self.dist3)
-
-    # timer only starts once buffer is filled
-    # e.g. if only one drone, timer_callback won't be called until 3 previous values and current values in buffer
-    def timer_callback(self):
-        #self.get_logger().info('gps timer callback')
-        if self.filled == True:
-            target = TransformStamped()
-
-            # Determine the Cartesian coordinates of the target robot
-            target = self.trilateration_solver(self.buffer_list[0][0], self.buffer_list[1][0], self.buffer_list[2][0], self.buffer_list[3][0], 
-                                        self.buffer_list[0][1], self.buffer_list[1][1], self.buffer_list[2][1], self.buffer_list[3][1])
-            self.gps_publisher.publish(target)
 
     def buffer(self, buffer, pose, distance):
         pose_dist_tuple = (pose, distance)
