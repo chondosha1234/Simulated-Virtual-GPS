@@ -15,34 +15,37 @@ class VirtualGPSNode(Node):
         super().__init__('virtual_gps_node')
 
         self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
-
         self.get_logger().info(f'robot name in gps: {self.robot_name}')
 
-        # will use to determine how many/which drones exist
-        # subscriber will only be made for existing drones
+        # used to determine how many/which drones exist
         self.pose_list = [0] * 4
         self.num_drones = 0
 
         # Publisher to topic '/gps' that Error Measurement Node will subscribe to
         self.gps_publisher = self.create_publisher(TransformStamped, f'/{self.robot_name}/gps', 10)
-
-        # not using for now because maybe not necessary? 
-        # e.g. 3 drones 1 buffer, 2 drones 2 buffers, 1 drone 3 buffers
-        # self.buffer_num = 4 - self.num_drones
         
-        self.pose_buffer = []
-        self.distance_buffer = []
+        # placeholder for pose values
+        self.pose1 = TransformStamped()
+        self.pose2 = TransformStamped()
+        self.pose3 = TransformStamped()
+        self.pose4 = TransformStamped()
 
-        # boolean to check if buffer has been filled to ensure there is enough data to do calculations 
-        # shouldn't need both of these but may be good to have for testing purposes
+        # placeholder for dist valuea
+        self.dist1 = 0.0
+        self.dist2 = 0.0
+        self.dist3 = 0.0
+        self.dist4 = 0.0
+
+        # the buffer--list of tuples which hold pose and dist values
+        self.buffer_list = []
+
+        # tracks whether buffer is full
         self.filled = False
-        self.filled2 = False
 
         # Subscriber to topic '/tf' which contains drone positions
         self.x500_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
         self.x500_subscription
 
-        # making subscribers only if drone exists; cause errors otherwise?
         # Subscriber to topic '/dist/{self.robot_name}/x500_1'
         self.sensor_subscription_1 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_1', self.distance_callback_1, 10)
         self.sensor_subscription_1
@@ -59,43 +62,26 @@ class VirtualGPSNode(Node):
         self.sensor_subscription_4 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_4', self.distance_callback_4, 10)
         self.sensor_subscription_4
 
-        # timer only starts once buffer is filled
-        # e.g. only one drone, timer_callback won't be called until 3 previous distances recorded
         # Timer that runs callback function every 200ms
         timer_period = 0.2
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
-    def timer_callback(self):
-        #self.get_logger().info('gps timer callback')
-        if self.filled == True and self.filled2 == True:
-
-            target = TransformStamped()
-
-            # Determine the Cartesian coordinates of the target robot
-            target = self.trilateration_solver(self.pose_buffer[0], self.pose_buffer[1], self.pose_buffer[2], self.pose_buffer[3], 
-                                        self.distance_buffer[0], self.distance_buffer[1], self.distance_buffer[2], self.distance_buffer[3])
-            self.gps_publisher.publish(target)
-
-
-    # if the drone exists, save its position and record its existence
+    # if drone exists, save its position and other associated data in buffer
     def pose_callback(self, msg):
         for transform in msg.transforms:
             name = transform.child_frame_id
 
             if name == 'x500_1':
-                self.pose_filled = self.buffer(self.pose_buffer, transform)
+                self.pose1 = transform
                 self.pose_list[0] = 1
             elif name == 'x500_2':
-                # self.x500_2_pose = transform
-                self.pose_filled = self.buffer(self.pose_buffer, transform)
+                self.pose2 = transform
                 self.pose_list[1] = 1
             elif name == 'x500_3':
-                # self.x500_3_pose = transform
-                self.pose_filled = self.buffer(self.pose_buffer, transform)
+                self.pose3 = transform
                 self.pose_list[2] = 1
             elif name == 'x500_4':
-                # self.x500_4_pose = transform
-                self.pose_filled = self.buffer(self.pose_buffer, transform)
+                self.pose4 = transform
                 self.pose_list[3] = 1
         
         # count the number of drones in simulation
@@ -104,32 +90,64 @@ class VirtualGPSNode(Node):
             if drone == 1:
                 i += 1
         self.num_drones = i
-    
 
-    def buffer(self, buffer, value):
-        filled = False
+        # given number of drones in simulation, add drone data to buffer
+        # self.dist values from distance_callback functions
+        if self.num_drones == 1:
+            self.buffer(self.buffer_list, self.pose1, self.dist1)
+        elif self.num_drones == 2:
+            self.buffer(self.buffer_list, self.pose1, self.dist1)
+            self.buffer(self.buffer_list, self.pose2, self.dist2)
+        elif self.num_drones == 4:
+            self.buffer(self.buffer_list, self.pose1, self.dist1)
+            self.buffer(self.buffer_list, self.pose2, self.dist2)
+            self.buffer(self.buffer_list, self.pose3, self.dist3)
+            self.buffer(self.buffer_list, self.pose4, self.dist4)
+
+    # timer only starts once buffer is filled
+    # e.g. if only one drone, timer_callback won't be called until 3 previous values and current values in buffer
+    def timer_callback(self):
+        #self.get_logger().info('gps timer callback')
+        if self.filled == True:
+            target = TransformStamped()
+
+            # Determine the Cartesian coordinates of the target robot
+            target = self.trilateration_solver(self.buffer_list[0][0], self.buffer_list[1][0], self.buffer_list[2][0], self.buffer_list[3][0], 
+                                        self.buffer_list[0][1], self.buffer_list[1][1], self.buffer_list[2][1], self.buffer_list[3][1])
+            self.gps_publisher.publish(target)
+
+    def buffer(self, buffer, pose, distance):
+        pose_dist_tuple = (pose, distance)
+
+        # if buffer is not filled, add tuple to buffer
         if len(buffer) < 4:
-            buffer.append(value)
-            if len(buffer) == 4:
-                filled = True
+            buffer.append(pose_dist_tuple)
+
+        # if buffer is filled, dump buffer before adding tuple--number of elements dumped dependent on number of drones in sim
+        # i.e. dumps 1 if 1 drone, 2 if 2 drones, 4 if 4 drones
         elif len(buffer) == 4:
-            buffer.pop(0)
-            buffer.append(value)
-            filled = True
+            for i in range(1, self.num_drones):
+                buffer.pop(0)
+            buffer.append(pose_dist_tuple)
+        
+        self.filled = False
+        # set filled to true if buffer is filled after adding tuple to it
+        if len(buffer) == 4:
+            self.filled = True
+
         #self.get_logger().info(f'buffer: {buffer}')
-        return filled
 
     def distance_callback_1(self, msg):
-        self.dist_filled = self.buffer(self.distance_buffer, msg.data)
+        self.dist1 = msg.data
 
     def distance_callback_2(self, msg):
-        self.dist_filled = self.buffer(self.distance_buffer, msg.data)
+        self.dist2 = msg.data
 
     def distance_callback_3(self, msg):
-        self.dist_filled = self.buffer(self.distance_buffer, msg.data)
+        self.dist3 = msg.data
 
     def distance_callback_4(self, msg):
-        self.dist_filled = self.buffer(self.distance_buffer, msg.data)
+        self.dist4 = msg.data
 
     def trilateration_solver(self, drone0, drone1, drone2, drone3, r0, r1, r2, r3):
         # Get the cartesian coordinates of all the four drones
@@ -201,4 +219,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
