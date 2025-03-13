@@ -1,10 +1,10 @@
 
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
 from geometry_msgs.msg import TransformStamped
 from geometry_msgs.msg import Pose
-
-import rclpy
-from rclpy.node import Node
 
 from tf2_ros import TransformBroadcaster
 
@@ -16,6 +16,12 @@ class Tf2PositionBroadcaster(Node):
 
         #declare and acquire robot name parameter (parameters can be set for each Node in launch file, each robot will launch their own version)
         self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
+
+        qos_profile = QoSProfile(
+            depth=1,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.VOLATILE
+        )
         
         self.tf_broadcaster = TransformBroadcaster(self)
         
@@ -23,7 +29,7 @@ class Tf2PositionBroadcaster(Node):
                 Pose,
                 f'/model/{self.robot_name}/pose',   # each robot will have its own topic 
                 self.pose_callback,
-                10
+                qos_profile
         )
 
 

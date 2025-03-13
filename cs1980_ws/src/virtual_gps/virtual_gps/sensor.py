@@ -1,12 +1,12 @@
 from decimal import FloatOperation
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import TransformStamped
 from tf2_msgs.msg import TFMessage
 
-# wrong?
 from std_msgs.msg import Float32
 
 import math
@@ -21,6 +21,12 @@ class SensorNode(Node):
 
         self.get_logger().info(f'robot name in sensor: {self.robot_name}')
 
+        qos_profile = QoSProfile(
+            depth=10,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.VOLATILE
+        )
+
         self.robot_pose = TransformStamped()
 
         # Pose variables to keep track of drone positions 
@@ -34,25 +40,25 @@ class SensorNode(Node):
         self.x500_0_publisher = self.create_publisher(
             Float32, 
             f'/dist/{self.robot_name}/x500_0', 
-            10
+            qos_profile
         ) 
 
         self.x500_1_publisher = self.create_publisher(
             Float32, 
             f'/dist/{self.robot_name}/x500_1', 
-            10
+            qos_profile
         ) 
 
         self.x500_2_publisher = self.create_publisher(
             Float32, 
             f'/dist/{self.robot_name}/x500_2', 
-            10
+            qos_profile
         ) 
 
         self.x500_3_publisher = self.create_publisher(
             Float32, 
             f'/dist/{self.robot_name}/x500_3', 
-            10
+            qos_profile
         ) 
 
         # subscriber to '/tf' which contains robot positions
@@ -60,17 +66,16 @@ class SensorNode(Node):
         self.x500_subscriber
         # timer that runs callback function every 200ms -- tf_broadcaster sending every ~20ms
         # this node has enough time to collect updates/calculate for each robot before sending 
-        self.timer = self.create_timer(0.2, self.timer_callback)  # .2s -> 200ms 
+        self.timer = self.create_timer(0.25, self.timer_callback)  # .2s -> 200ms 
 
-    # subscriber callback function 
+
     def pose_callback(self, msg):
 
-        #print("inside callback")
         # robot name in field like msg.child_frame_id or msg.transforms.child_frame_id
         for transform in msg.transforms:
             name = transform.child_frame_id
 
-            #print(f"transform name: {name}")
+            #self.get_logger().info(f"transform name: {name}")
         
             # setting pose variable equal to msg (should be of type TransformStamped)
             if name == 'x500_0':
@@ -82,9 +87,10 @@ class SensorNode(Node):
             elif name == 'x500_3':
                 self.x500_3_pose = transform
             elif name == self.robot_name:
-                self.robot_pose = transform
-            #else:
-                #print("tf message robot name error.")
+                # sometimes the received transform for mouse gets dropped and is given as 0.0, 0.0, 0.0 
+                # but z should never be that (when it spawns its a few centimeters off the ground) so it can be used as a check and discarded
+                if not transform.transform.translation.z == 0.0:
+                    self.robot_pose = transform
 
 
     def timer_callback(self):
@@ -98,18 +104,21 @@ class SensorNode(Node):
         dist3 = self.calculate_distance(self.robot_pose, self.x500_3_pose)
 
         # publish distance to each flying robot to the topic for it 
-        msg = Float32() 
-        msg.data = dist0
-        self.x500_0_publisher.publish(msg)
+        msg0 = Float32() 
+        msg0.data = dist0
+        self.x500_0_publisher.publish(msg0)
 
-        msg.data = dist1
-        self.x500_1_publisher.publish(msg)
+        msg1 = Float32() 
+        msg1.data = dist1
+        self.x500_1_publisher.publish(msg1)
 
-        msg.data = dist2
-        self.x500_2_publisher.publish(msg)
+        msg2 = Float32()
+        msg2.data = dist2
+        self.x500_2_publisher.publish(msg2)
 
-        msg.data = dist3
-        self.x500_3_publisher.publish(msg)
+        msg3 = Float32()
+        msg3.data = dist3
+        self.x500_3_publisher.publish(msg3)
         
 
     # function to calculate distance between any 2 robots passed to it
@@ -120,9 +129,17 @@ class SensorNode(Node):
         y1 = robot1.transform.translation.y
         z1 = robot1.transform.translation.z
 
+        #self.get_logger().info(f'mouse x: {x1}')
+        #self.get_logger().info(f'mouse y: {y1}')
+        #self.get_logger().info(f'mouse z: {z1}')
+
         x2 = robot2.transform.translation.x
         y2 = robot2.transform.translation.y
         z2 = robot2.transform.translation.z
+
+        #self.get_logger().info(f'drone x: {x2}')
+        #self.get_logger().info(f'drone y: {y2}')
+        #self.get_logger().info(f'drone z: {z2}')
 
         # using x,y,z values to calculate euclidean distance
         x_value = (x1-x2) ** 2
@@ -133,7 +150,7 @@ class SensorNode(Node):
         euclidean_distance = math.sqrt((x_value + y_value + z_value)) 
 
         # here for testing purposes
-        #self.get_logger().info(f'sensor distance calc: {euclidean_distance}')
+        self.get_logger().info(f'sensor distance calc: {euclidean_distance}')
         
         return euclidean_distance
 

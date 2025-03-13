@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import TransformStamped
@@ -18,6 +19,12 @@ class VirtualGPSNode(Node):
 
         self.get_logger().info(f'robot name in gps: {self.robot_name}')
 
+        qos_profile = QoSProfile(
+            depth=1,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.VOLATILE
+        )
+
         # Pose variables to keep track of drone positions
         self.x500_0_pose = TransformStamped()
         self.x500_1_pose = TransformStamped()
@@ -31,35 +38,40 @@ class VirtualGPSNode(Node):
         self.distance3 = 0.0
 
         # Publisher to topic '/gps' that Error Measurement Node will subscribe to
-        self.gps_publisher = self.create_publisher(TransformStamped, f'/{self.robot_name}/gps', 10)
+        self.gps_publisher = self.create_publisher(TransformStamped, f'/{self.robot_name}/gps', 1)
 
         # Timer that runs callback function every 200ms
-        timer_period = 0.2
+        timer_period = 0.25
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Subscriber to topic '/tf' which contains drone positions
-        self.x500_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
+        self.x500_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, qos_profile)
         self.x500_subscription
 
         # Subscriber to topic '/dist/{self.robot_name}/x500_0'
-        self.sensor_subscription_0 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_0', self.distance_callback_0, 10)
+        self.sensor_subscription_0 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_0', self.distance_callback_0, qos_profile)
         self.sensor_subscription_0
 
         # Subscriber to topic '/dist/{self.robot_name}/x500_1'
-        self.sensor_subscription_1 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_1', self.distance_callback_1, 10)
+        self.sensor_subscription_1 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_1', self.distance_callback_1, qos_profile)
         self.sensor_subscription_1
 
         # Subscriber to topic '/dist/{self.robot_name}/x500_2'
-        self.sensor_subscription_2 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_2', self.distance_callback_2, 10)
+        self.sensor_subscription_2 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_2', self.distance_callback_2, qos_profile)
         self.sensor_subscription_2
 
         # Subscriber to topic '/dist/{self.robot_name}/x500_3'
-        self.sensor_subscription_3 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_3', self.distance_callback_3, 10)
+        self.sensor_subscription_3 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_3', self.distance_callback_3, qos_profile)
         self.sensor_subscription_3
 
 
     def timer_callback(self):
-        #self.get_logger().info('gps timer callback')
+        self.get_logger().info('gps timer callback')
+
+        #self.get_logger().info(f'dist0: {self.distance0}')
+        #self.get_logger().info(f'dist1: {self.distance1}')
+        #self.get_logger().info(f'dist2: {self.distance2}')
+        #self.get_logger().info(f'dist3: {self.distance3}')
 
         target = TransformStamped()
 
