@@ -30,6 +30,9 @@ setup(
             'tf_pose_broadcaster = virtual_gps.tf_pose_broadcaster:main',
             'mouse_control = virtual_gps.mouse_control:main',
             'error_measure = virtual_gps.error_measure:main',
+            'orientation = virtual_gps.orientation:main',
+            'wheel_publisher = virtual_gps.wheel_publisher:main',
+            'printer = virtual_gps.printer:main',
         ],
     },
 )

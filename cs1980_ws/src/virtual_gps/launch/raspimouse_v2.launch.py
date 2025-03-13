@@ -37,6 +37,12 @@ from raspimouse_description.robot_description_loader import RobotDescriptionLoad
 
 def generate_launch_description():
 
+    config_file = os.path.join(
+        get_package_share_directory('virtual_gps'),
+        'config',
+        'diff_drive_controller.yaml'
+    )
+
     declare_arg_lidar = DeclareLaunchArgument(
         'lidar',
         default_value='none',
@@ -102,7 +108,7 @@ def generate_launch_description():
         output='screen',
         arguments=[
             '-topic',
-            '/raspimouse_1/robot_description',
+            '/robot_description',
             '-name',
             'raspimouse_1',
             '-x',
@@ -122,7 +128,7 @@ def generate_launch_description():
         output='screen',
         arguments=[
             '-topic',
-            '/raspimouse_2/robot_description',
+            '/robot_description',
             '-name',
             'raspimouse_2',
             '-x',
@@ -147,14 +153,42 @@ def generate_launch_description():
         'config/raspimouse_controllers.yaml'
     )
 
+    control_node = Node(
+            package="controller_manager",
+            executable="ros2_control_node",
+            parameters=[config_file],  # Load the YAML file here
+            output="screen",
+    )
+
     robot_state_publisher1 = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        namespace='raspimouse_1',
+        #namespace='raspimouse_1',
         output='screen',
         parameters=[{'robot_description': description_loader.load()}],
     )
 
+    diff_drive_controller_1 = Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=["robot1_diff_drive_controller"],
+            output="screen",
+    )
+
+    diff_drive_controller_2 = Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=["robot2_diff_drive_controller"],
+            output="screen",
+    )
+
+    spawn_joint_state_broadcaster1 = ExecuteProcess(
+        cmd=['ros2 run controller_manager spawner joint_state_broadcaster'],
+        shell=True,
+        output='screen',
+    )
+
+    """
     robot_state_publisher2 = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -162,19 +196,20 @@ def generate_launch_description():
         output='screen',
         parameters=[{'robot_description': description_loader.load()}],
     )
-
+    
     
     spawn_joint_state_broadcaster1 = ExecuteProcess(
         cmd=['ros2 run controller_manager spawner joint_state_broadcaster'],
         shell=True,
         output='screen',
     )
-
+    
     spawn_joint_state_broadcaster2 = ExecuteProcess(
         cmd=['ros2 run controller_manager spawner joint_state_broadcaster'],
         shell=True,
         output='screen',
     )
+    
 
     spawn_diff_drive_controller1 = ExecuteProcess(
         cmd=['ros2 run controller_manager spawner diff_drive_controller'],
@@ -187,7 +222,7 @@ def generate_launch_description():
         shell=True,
         output='screen',
     )
-
+    """
 
     bridge = Node(
         package='ros_gz_bridge',
@@ -245,13 +280,15 @@ def generate_launch_description():
             gz_sim,
             gz_spawn_entity1,
             gz_spawn_entity2,
-            control_node1,
+            control_node,
             robot_state_publisher1,
-            robot_state_publisher2,
+            #robot_state_publisher2,
             spawn_joint_state_broadcaster1,
-            spawn_joint_state_broadcaster2,
-            spawn_diff_drive_controller1,
-            spawn_diff_drive_controller2,
+            #spawn_joint_state_broadcaster2,
+            #spawn_diff_drive_controller1,
+            #spawn_diff_drive_controller2,
+            diff_drive_controller_1,
+            diff_drive_controller_2,
             bridge,
             container1,
             container2,

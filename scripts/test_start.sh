@@ -23,9 +23,12 @@ source install/setup.bash
 
 echo "Launching raspimouse and gz sim..."
 
-ros2 launch virtual_gps raspimouse_v2.launch.py > "$LOG_DIR/raspimouse.log" 2>&1 &
+ros2 launch virtual_gps raspimouse_default.launch.py > "$LOG_DIR/raspimouse.log" 2>&1 &
 PIDS="$PIDS $!"
-#sleep 2
+sleep 2
+
+ros2 launch virtual_gps raspimouse_default.launch.py robot_name:=raspimouse_2 > "$LOG_DIR/raspimouse1.log" 2>&1 &
+PIDS="$PIDS $!"
 
 #ros2 run ros_gz_sim create -topic /robot_description -name raspimouse_2 -x 2.0 -y 2.0 -z 0.02 > "$LOG_DIR/raspimouse_2.log" 2>&1 &
 #PIDS="$PIDS $!"

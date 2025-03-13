@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 
-from geometry_msgs.msg import TransfromStamped
+from geometry_msgs.msg import TransformStamped
 from std_msgs.msg import Float32
 
 import math
@@ -18,20 +18,21 @@ class OrientationNode(Node):
         self.init_wheels = np.empty(2, dtype=object)
         self.curr_wheels = np.empty(2, dtype=object)
 
-        self.orientation_publisher = self.create_publisher(Float32, f'/{self.robot_name}/gps', 10)
+        self.orientation_publisher = self.create_publisher(Float32, f'/{self.robot_name}/orientation_degrees', 10)
+
         timer_period = 0.2
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
-        self.left_wheel_subscription = self.create_subscription(TransfromStamped, "/raspimouse_left_wheel", self.left_wheel_callback, 10)
+        self.left_wheel_subscription = self.create_subscription(TransformStamped, f'/{self.robot_name}/left_wheel', self.left_wheel_callback, 10)
         self.left_wheel_subscription
 
-        self.right_wheel_subscription = self.create_subscription(TransfromStamped, "/raspimouse_right_wheel", self.right_wheel_callback, 10)
+        self.right_wheel_subscription = self.create_subscription(TransformStamped, f'/{self.robot_name}/right_wheel', self.right_wheel_callback, 10)
         self.right_wheel_subscription
 
     def timer_callback(self):
-        orient_change = 0.0
+        orient_change = Float32()
 
-        orient_change = self.calculate_orient_change(self.init_wheels, self.curr_wheels)
+        orient_change.data = self.calculate_orient_change(self.init_wheels, self.curr_wheels)
 
         self.orientation_publisher.publish(orient_change)
     

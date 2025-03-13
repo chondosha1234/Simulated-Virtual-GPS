@@ -24,18 +24,18 @@ def generate_launch_description():
         ),
         Node(
             package='virtual_gps',
-            executable='drone_control',
-            name='drone_control_x500_0',
+            executable='tf_pose_broadcaster',
+            name='tf_pose_broadcaster_x500_2',
             parameters=[
-                {'robot_name': 'x500_0'},
+                {'robot_name':'x500_2'},
             ],
         ),
         Node(
             package='virtual_gps',
-            executable='drone_control',
-            name='drone_control_x500_1',
+            executable='tf_pose_broadcaster',
+            name='tf_pose_broadcaster_x500_3',
             parameters=[
-                {'robot_name': 'x500_1'},
+                {'robot_name':'x500_3'},
             ],
         ),
         Node(
@@ -48,21 +48,20 @@ def generate_launch_description():
         ),
         Node(
             package='virtual_gps',
-            executable='tf_pose_broadcaster',
-            name='tf_pose_broadcaster_raspimouse_2',
+            executable='wheel_publisher',
+            name='wheel_publisher_raspimouse',
             parameters=[
-                {'robot_name':'raspimouse_2'},
+                {'robot_name':'raspimouse'},
             ],
         ),
-        
-        
-    ])
-
-    return launch_description
-
-
-
-"""
+        Node(
+            package='virtual_gps',
+            executable='orientation',
+            name='orientation_raspimouse',
+            parameters=[
+                {'robot_name':'raspimouse'},
+            ],
+        ),
         Node(
             package='virtual_gps',
             executable='sensor',
@@ -73,7 +72,7 @@ def generate_launch_description():
         ),
         Node(
             package='virtual_gps',
-            executable='virtual_gps',
+            executable='virtual_gps_v2',
             name='virtual_gps_raspimouse',
             parameters=[
                 {'robot_name':'raspimouse'},
@@ -85,6 +84,29 @@ def generate_launch_description():
             name='error_measure_raspimouse',
             parameters=[
                 {'robot_name':'raspimouse'},
+            ],
+        ),
+        
+        
+    ])
+
+    return launch_description
+
+"""
+Node(
+            package='virtual_gps',
+            executable='drone_control',
+            name='drone_control_x500_0',
+            parameters=[
+                {'robot_name': 'x500_0'},
+            ],
+        ),
+        Node(
+            package='virtual_gps',
+            executable='drone_control',
+            name='drone_control_x500_1',
+            parameters=[
+                {'robot_name': 'x500_1'},
             ],
         ),
         """
