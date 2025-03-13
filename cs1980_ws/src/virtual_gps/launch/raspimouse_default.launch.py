@@ -71,7 +71,7 @@ def generate_launch_description():
     )
 
     declare_arg_robot_name = DeclareLaunchArgument(
-        'robot_name', default_value='raspimouse_1', description='Give robot name.'
+        'robot_name', default_value='raspimouse', description='Give robot name.'
     )
 
     env = {

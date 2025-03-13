@@ -54,14 +54,7 @@ def generate_launch_description():
                 {'robot_name':'raspimouse'},
             ],
         ),
-        Node(
-            package='virtual_gps',
-            executable='orientation',
-            name='orientation_raspimouse',
-            parameters=[
-                {'robot_name':'raspimouse'},
-            ],
-        ),
+        
         Node(
             package='virtual_gps',
             executable='sensor',
@@ -76,6 +69,7 @@ def generate_launch_description():
             name='virtual_gps_raspimouse',
             parameters=[
                 {'robot_name':'raspimouse'},
+                {'num_drones': 4},
             ],
         ),
         Node(
@@ -107,6 +101,15 @@ Node(
             name='drone_control_x500_1',
             parameters=[
                 {'robot_name': 'x500_1'},
+            ],
+        ),
+
+        Node(
+            package='virtual_gps',
+            executable='orientation',
+            name='orientation_raspimouse',
+            parameters=[
+                {'robot_name':'raspimouse'},
             ],
         ),
         """

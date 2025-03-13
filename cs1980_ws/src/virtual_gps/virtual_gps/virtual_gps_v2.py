@@ -9,6 +9,7 @@ from tf2_msgs.msg import TFMessage
 from std_msgs.msg import Float32
 
 import tf_transformations
+import copy 
 import math
 import numpy as np
 
@@ -20,9 +21,11 @@ class VirtualGPSNode(Node):
         self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
         self.get_logger().info(f'robot name in gps: {self.robot_name}')
 
+        self.num_drones = self.declare_parameter('num_drones', 1).get_parameter_value().integer_value
+
         # used to determine how many/which drones exist
         self.pose_list = [0] * 4
-        self.num_drones = 0
+        #self.num_drones = 0
 
         # Publisher to topic '/gps' that Error Measurement Node will subscribe to
         self.gps_publisher = self.create_publisher(TransformStamped, f'/{self.robot_name}/gps', 10)
@@ -80,6 +83,7 @@ class VirtualGPSNode(Node):
         timer_period2 = 0.25
         self.buffer_timer = self.create_timer(timer_period2, self.buffer_timer_callback)
 
+
     # if drone exists, save its position and other associated data in buffer
     def pose_callback(self, msg):
         for transform in msg.transforms:
@@ -98,9 +102,11 @@ class VirtualGPSNode(Node):
                 self.pose3 = transform
                 self.pose_list[3] = 1
 
+
     # timer only starts once buffer is filled
     # e.g. if only one drone, timer_callback won't be called until 3 previous values and current values in buffer
     def gps_timer_callback(self):
+
         self.get_logger().info('gps timer callback')
         if self.filled == True:
             target = TransformStamped()
@@ -110,6 +116,7 @@ class VirtualGPSNode(Node):
                                         self.buffer_list[0][1], self.buffer_list[1][1], self.buffer_list[2][1], self.buffer_list[3][1])
             
             # add in the current orientation in quaternions 
+            """
             self.get_logger().info(f'degrees: {self.orientation_deg}')
             quat = self.convert_orientation_to_quat()
             self.get_logger().info(f'quat: {quat}')
@@ -117,6 +124,7 @@ class VirtualGPSNode(Node):
             target.transform.rotation.y = quat[1]
             target.transform.rotation.z = quat[2]
             target.transform.rotation.w = quat[3]
+            """
 
             self.gps_publisher.publish(target)
     
@@ -133,29 +141,50 @@ class VirtualGPSNode(Node):
     # counts number of drones and adds drone data to buffer
     def buffer_timer_callback(self):
         # count the number of drones in simulation
+        """
         i = 0
         for drone in self.pose_list:
             if drone == 1:
                 i += 1
         self.num_drones = i
         self.get_logger().info(f'drones: {i}')
+        """
+
         # given number of drones in simulation, add drone data to buffer
         # self.dist values from distance_callback functions
         if self.num_drones == 1:
             self.buffer(self.buffer_list, self.pose0, self.dist0)
+
         elif self.num_drones == 2:
-            self.get_logger().info(f'2 drones counted')
             self.buffer(self.buffer_list, self.pose0, self.dist0)
             self.buffer(self.buffer_list, self.pose1, self.dist1)
+
         elif self.num_drones == 4:
             self.get_logger().info(f'4 drones counted')
+            
+            self.get_logger().info(f'dist0: {self.dist0}')
+            self.get_logger().info(f'dist1: {self.dist1}')
+            self.get_logger().info(f'dist2: {self.dist2}')
+            self.get_logger().info(f'dist3: {self.dist3}')
             self.buffer(self.buffer_list, self.pose0, self.dist0)
             self.buffer(self.buffer_list, self.pose1, self.dist1)
             self.buffer(self.buffer_list, self.pose2, self.dist2)
             self.buffer(self.buffer_list, self.pose3, self.dist3)
 
+
+    # return true if transform pose is the same  
+    def compare_pose(self, pose1, pose2):
+        
+        return (pose1.transform.translation.x == pose2.transform.translation.x and
+           pose1.transform.translation.y == pose2.transform.translation.y and
+           pose1.transform.translation.z == pose2.transform.translation.z)
+
+
     def buffer(self, buffer, pose, distance):
-        pose_dist_tuple = (pose, distance)
+
+        # copy the object, otherwise it will be updated in buffer when self.pose gets changed 
+        pose_copy = copy.deepcopy(pose)
+        pose_dist_tuple = (pose_copy, distance)
 
         # if buffer is not filled, add tuple to buffer
         if len(buffer) < 4:
@@ -175,7 +204,10 @@ class VirtualGPSNode(Node):
         if len(buffer) == 4:
             self.filled = True
 
-        self.get_logger().info(f'buffer: {buffer}')
+            self.get_logger().info(f'buffer0: {buffer[0][0].transform.translation.x}, {buffer[0][0].transform.translation.y}, {buffer[0][0].transform.translation.z} -- {buffer[0][1]}')
+            self.get_logger().info(f'buffer1: {buffer[1][0].transform.translation.x}, {buffer[1][0].transform.translation.y}, {buffer[1][0].transform.translation.z} -- {buffer[1][1]}')
+            self.get_logger().info(f'buffer2: {buffer[2][0].transform.translation.x}, {buffer[2][0].transform.translation.y}, {buffer[2][0].transform.translation.z} -- {buffer[2][1]}')
+            self.get_logger().info(f'buffer3: {buffer[3][0].transform.translation.x}, {buffer[3][0].transform.translation.y}, {buffer[3][0].transform.translation.z} -- {buffer[3][1]}')
 
     def distance_callback_0(self, msg):
         self.dist0 = msg.data
@@ -191,6 +223,7 @@ class VirtualGPSNode(Node):
 
     def orientation_callback(self, msg):
         self.orientation_deg = msg.data
+
 
     def trilateration_solver(self, drone0, drone1, drone2, drone3, r0, r1, r2, r3):
         # Get the cartesian coordinates of all the four drones
