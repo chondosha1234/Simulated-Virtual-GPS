@@ -27,8 +27,11 @@ class ErrorMeasureNode(Node):
         self.error_publisher = self.create_publisher(Float32, f'/{self.robot_name}/error_measure', 10)
 
         # subscriber to topic '/tf' which contains robot positions
-        self.robot_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
-        self.robot_subscription
+        #self.robot_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
+        #self.robot_subscription
+
+        self.raspimouse_sub = self.create_subscription(TransformStamped, f'/model/{self.robot_name}/pose', self.raspimouse_pose_callback, 10)
+        self.raspimouse_sub
 
         # subscriber to topic '/gps' which contains estimated position of robot
         self.gps_subscription = self.create_subscription(TransformStamped, f'/{self.robot_name}/gps', self.error_callback, 10)
@@ -37,7 +40,7 @@ class ErrorMeasureNode(Node):
         # timer that runs callback function every 200ms
         self.timer = self.create_timer(0.2, self.timer_callback)
 
-
+    """
     def pose_callback(self, msg):
         for transform in msg.transforms:
             name = transform.child_frame_id
@@ -47,7 +50,10 @@ class ErrorMeasureNode(Node):
             # setting pose variable equal to msg (should be of type TransformStamped)
             if name == self.robot_name:
                 self.robot_actual_pose = transform
-    
+    """
+    def raspimouse_pose_callback(self,msg):
+        if msg.child_frame_id == 'raspimouse':
+            self.robot_pose = msg
 
     def error_callback(self, msg):
         # setting pose variable equal to msg (should be of type TransformStamped)

@@ -62,23 +62,23 @@ sleep 2
 
 echo "Bridging gz topics to ROS topics"
 
-ros2 run ros_gz_bridge parameter_bridge /model/x500_0/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+ros2 run ros_gz_bridge parameter_bridge /model/x500_0/pose@geometry_msgs/msg/TransformStamped@gz.msgs.Pose &
 PIDS="$PIDS $!"
-ros2 run ros_gz_bridge parameter_bridge /model/x500_1/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+ros2 run ros_gz_bridge parameter_bridge /model/x500_1/pose@geometry_msgs/msg/TransformStamped@gz.msgs.Pose &
 PIDS="$PIDS $!"
-ros2 run ros_gz_bridge parameter_bridge /model/x500_2/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+ros2 run ros_gz_bridge parameter_bridge /model/x500_2/pose@geometry_msgs/msg/TransformStamped@gz.msgs.Pose &
 PIDS="$PIDS $!"
-ros2 run ros_gz_bridge parameter_bridge /model/x500_3/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+ros2 run ros_gz_bridge parameter_bridge /model/x500_3/pose@geometry_msgs/msg/TransformStamped@gz.msgs.Pose &
 PIDS="$PIDS $!"
 
-ros2 run ros_gz_bridge parameter_bridge /model/raspimouse/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+ros2 run ros_gz_bridge parameter_bridge /model/raspimouse/pose@geometry_msgs/msg/TransformStamped@gz.msgs.Pose &
 PIDS="$PIDS $!"
 
 
 echo "Launching ROS2 launch file 'virtual_gps.launch.py'"
 
 source ~/Simulated-Virtual-GPS/cs1980_ws/install/setup.bash
-ros2 launch virtual_gps virtual_gps_v2.launch.py > "$LOG_DIR/ros2_launch.log" 2>&1 &
+ros2 launch virtual_gps virtual_gps.launch.py > "$LOG_DIR/ros2_launch.log" 2>&1 &
 PIDS="$PIDS $!"
 
 echo "All drones and systems started."

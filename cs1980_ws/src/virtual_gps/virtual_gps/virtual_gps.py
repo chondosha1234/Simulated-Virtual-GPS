@@ -38,40 +38,54 @@ class VirtualGPSNode(Node):
         self.distance3 = 0.0
 
         # Publisher to topic '/gps' that Error Measurement Node will subscribe to
-        self.gps_publisher = self.create_publisher(TransformStamped, f'/{self.robot_name}/gps', 1)
+        self.gps_publisher = self.create_publisher(TransformStamped, f'/{self.robot_name}/gps', 10)
 
         # Timer that runs callback function every 200ms
         timer_period = 0.25
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         # Subscriber to topic '/tf' which contains drone positions
-        self.x500_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, qos_profile)
-        self.x500_subscription
+        #self.x500_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, qos_profile)
+        #self.x500_subscription
 
         # Subscriber to topic '/dist/{self.robot_name}/x500_0'
-        self.sensor_subscription_0 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_0', self.distance_callback_0, qos_profile)
+        self.sensor_subscription_0 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_0', self.distance_callback_0, 10)
         self.sensor_subscription_0
 
         # Subscriber to topic '/dist/{self.robot_name}/x500_1'
-        self.sensor_subscription_1 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_1', self.distance_callback_1, qos_profile)
+        self.sensor_subscription_1 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_1', self.distance_callback_1, 10)
         self.sensor_subscription_1
 
         # Subscriber to topic '/dist/{self.robot_name}/x500_2'
-        self.sensor_subscription_2 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_2', self.distance_callback_2, qos_profile)
+        self.sensor_subscription_2 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_2', self.distance_callback_2, 10)
         self.sensor_subscription_2
 
         # Subscriber to topic '/dist/{self.robot_name}/x500_3'
-        self.sensor_subscription_3 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_3', self.distance_callback_3, qos_profile)
+        self.sensor_subscription_3 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_3', self.distance_callback_3, 10)
         self.sensor_subscription_3
+
+        self.x500_0_sub = self.create_subscription(TransformStamped, '/model/x500_0/pose', self.x500_0_sub_callback, 10)
+        self.x500_0_sub
+
+        self.x500_1_sub = self.create_subscription(TransformStamped, '/model/x500_1/pose', self.x500_1_sub_callback, 10)
+        self.x500_1_sub
+
+        self.x500_2_sub = self.create_subscription(TransformStamped, '/model/x500_2/pose', self.x500_2_sub_callback, 10)
+        self.x500_2_sub
+
+        self.x500_3_sub = self.create_subscription(TransformStamped, '/model/x500_3/pose', self.x500_3_sub_callback, 10)
+        self.x500_3_sub
 
 
     def timer_callback(self):
-        self.get_logger().info('gps timer callback')
+        #self.get_logger().info('gps timer callback')
 
         #self.get_logger().info(f'dist0: {self.distance0}')
         #self.get_logger().info(f'dist1: {self.distance1}')
         #self.get_logger().info(f'dist2: {self.distance2}')
         #self.get_logger().info(f'dist3: {self.distance3}')
+
+        #self.get_logger().info(f'x500 0: {self.x500_0_pose.transform.translation}')
 
         target = TransformStamped()
 
@@ -81,7 +95,7 @@ class VirtualGPSNode(Node):
 
         self.gps_publisher.publish(target)
     
-
+    """
     def pose_callback(self, msg):
 
         for transform in msg.transforms:
@@ -97,7 +111,7 @@ class VirtualGPSNode(Node):
                 self.x500_3_pose = transform
             #else:
                 #print("tf message robot name error")
-    
+    """
 
     def distance_callback_0(self, msg):
         self.distance0 = msg.data
@@ -110,6 +124,18 @@ class VirtualGPSNode(Node):
 
     def distance_callback_3(self, msg):
         self.distance3 = msg.data
+
+    def x500_0_sub_callback(self, msg):
+        self.x500_0_pose = msg
+
+    def x500_1_sub_callback(self, msg):
+        self.x500_1_pose = msg
+
+    def x500_2_sub_callback(self, msg):
+        self.x500_2_pose = msg
+
+    def x500_3_sub_callback(self, msg):
+        self.x500_3_pose = msg
 
     def trilateration_solver(self, drone0, drone1, drone2, drone3, r0, r1, r2, r3):
         # Get the cartesian coordinates of all the four drones

@@ -6,7 +6,48 @@ from launch_ros.actions import Node
 def generate_launch_description():
     
     launch_description = LaunchDescription([
+        
         Node(
+            package='virtual_gps',
+            executable='sensor',
+            name='sensor_raspimouse',
+            parameters=[
+                {'robot_name':'raspimouse'},
+            ],
+        ),
+        Node(
+            package='virtual_gps',
+            executable='orientation',
+            name='orientation_raspimouse',
+            parameters=[
+                {'robot_name':'raspimouse'},
+            ],
+        ),
+        Node(
+            package='virtual_gps',
+            executable='virtual_gps',
+            name='virtual_gps_raspimouse',
+            parameters=[
+                {'robot_name':'raspimouse'},
+            ],
+        ),
+        Node(
+            package='virtual_gps',
+            executable='error_measure',
+            name='error_measure_raspimouse',
+            parameters=[
+                {'robot_name':'raspimouse'},
+            ],
+        ),
+
+    ])
+
+    return launch_description
+
+
+
+"""
+Node(
             package='virtual_gps',
             executable='tf_pose_broadcaster',
             name='tf_pose_broadcaster_x500_0',
@@ -46,30 +87,4 @@ def generate_launch_description():
                 {'robot_name':'raspimouse'},
             ],
         ),
-        Node(
-            package='virtual_gps',
-            executable='sensor',
-            name='sensor_raspimouse',
-            parameters=[
-                {'robot_name':'raspimouse'},
-            ],
-        ),
-        Node(
-            package='virtual_gps',
-            executable='virtual_gps',
-            name='virtual_gps_raspimouse',
-            parameters=[
-                {'robot_name':'raspimouse'},
-            ],
-        ),
-        Node(
-            package='virtual_gps',
-            executable='error_measure',
-            name='error_measure_raspimouse',
-            parameters=[
-                {'robot_name':'raspimouse'},
-            ],
-        ),
-    ])
-
-    return launch_description
+        """
