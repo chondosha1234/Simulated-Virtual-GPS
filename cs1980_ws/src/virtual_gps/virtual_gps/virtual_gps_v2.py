@@ -162,10 +162,10 @@ class VirtualGPSNode(Node):
         elif self.num_drones == 4:
             self.get_logger().info(f'4 drones counted')
             
-            self.get_logger().info(f'dist0: {self.dist0}')
-            self.get_logger().info(f'dist1: {self.dist1}')
-            self.get_logger().info(f'dist2: {self.dist2}')
-            self.get_logger().info(f'dist3: {self.dist3}')
+            #self.get_logger().info(f'dist0: {self.dist0}')
+            #self.get_logger().info(f'dist1: {self.dist1}')
+            #self.get_logger().info(f'dist2: {self.dist2}')
+            #self.get_logger().info(f'dist3: {self.dist3}')
             self.buffer(self.buffer_list, self.pose0, self.dist0)
             self.buffer(self.buffer_list, self.pose1, self.dist1)
             self.buffer(self.buffer_list, self.pose2, self.dist2)

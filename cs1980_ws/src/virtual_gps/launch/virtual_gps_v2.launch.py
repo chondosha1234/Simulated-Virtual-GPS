@@ -8,57 +8,32 @@ def generate_launch_description():
     launch_description = LaunchDescription([
         Node(
             package='virtual_gps',
-            executable='tf_pose_broadcaster',
-            name='tf_pose_broadcaster_x500_0',
+            executable='drone_control',
+            name='drone_control_x500_0',
             parameters=[
-                {'robot_name':'x500_0'},
+                {'robot_name': 'x500_0'},
             ],
         ),
         Node(
             package='virtual_gps',
-            executable='tf_pose_broadcaster',
-            name='tf_pose_broadcaster_x500_1',
+            executable='drone_control',
+            name='drone_control_x500_1',
             parameters=[
-                {'robot_name':'x500_1'},
+                {'robot_name': 'x500_1'},
             ],
         ),
-        Node(
-            package='virtual_gps',
-            executable='tf_pose_broadcaster',
-            name='tf_pose_broadcaster_x500_2',
-            parameters=[
-                {'robot_name':'x500_2'},
-            ],
-        ),
-        Node(
-            package='virtual_gps',
-            executable='tf_pose_broadcaster',
-            name='tf_pose_broadcaster_x500_3',
-            parameters=[
-                {'robot_name':'x500_3'},
-            ],
-        ),
-        Node(
-            package='virtual_gps',
-            executable='tf_pose_broadcaster',
-            name='tf_pose_broadcaster_raspimouse',
-            parameters=[
-                {'robot_name':'raspimouse'},
-            ],
-        ),
-        Node(
-            package='virtual_gps',
-            executable='wheel_publisher',
-            name='wheel_publisher_raspimouse',
-            parameters=[
-                {'robot_name':'raspimouse'},
-            ],
-        ),
-        
         Node(
             package='virtual_gps',
             executable='sensor',
             name='sensor_raspimouse',
+            parameters=[
+                {'robot_name':'raspimouse'},
+            ],
+        ),
+        Node(
+            package='virtual_gps',
+            executable='orientation',
+            name='orientation_raspimouse',
             parameters=[
                 {'robot_name':'raspimouse'},
             ],
@@ -85,31 +60,3 @@ def generate_launch_description():
     ])
 
     return launch_description
-
-"""
-Node(
-            package='virtual_gps',
-            executable='drone_control',
-            name='drone_control_x500_0',
-            parameters=[
-                {'robot_name': 'x500_0'},
-            ],
-        ),
-        Node(
-            package='virtual_gps',
-            executable='drone_control',
-            name='drone_control_x500_1',
-            parameters=[
-                {'robot_name': 'x500_1'},
-            ],
-        ),
-
-        Node(
-            package='virtual_gps',
-            executable='orientation',
-            name='orientation_raspimouse',
-            parameters=[
-                {'robot_name':'raspimouse'},
-            ],
-        ),
-        """

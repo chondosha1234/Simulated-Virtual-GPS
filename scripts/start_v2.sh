@@ -61,12 +61,12 @@ sleep 2
 
 echo "Bridging gz topics to ROS topics..."
 
-ros2 run ros_gz_bridge parameter_bridge /model/x500_0/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+ros2 run ros_gz_bridge parameter_bridge /model/x500_0/pose@geometry_msgs/msg/TransformStamped@gz.msgs.Pose &
 PIDS="$PIDS $!"
-ros2 run ros_gz_bridge parameter_bridge /model/x500_1/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+ros2 run ros_gz_bridge parameter_bridge /model/x500_1/pose@geometry_msgs/msg/TransformStamped@gz.msgs.Pose &
 PIDS="$PIDS $!"
 
-ros2 run ros_gz_bridge parameter_bridge /model/raspimouse/pose@geometry_msgs/msg/Pose@gz.msgs.Pose &
+ros2 run ros_gz_bridge parameter_bridge /model/raspimouse/pose@geometry_msgs/msg/TransformStamped@gz.msgs.Pose &
 PIDS="$PIDS $!"
 
 
