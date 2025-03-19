@@ -160,6 +160,34 @@ The launch files are also called in the scripts at appropriate places.
 
 These scripts are found in the `scripts/` folder and can be easily run with `./start.sh` for example.
 
+### Version 1 
+
+Version 1 of the project was to set up the infrastructure and architecture of the simulation and get a basic virtual GPS to work.
+This setup has 4 flying x500 drones positioned on the ground in the 4 cardinal directions around the origin.
+One raspimouse is placed at the origin point. 
+Using our virtual GPS for the raspimouse, we are able to calculate its position using 4 positions which are the 4 stationary drones. 
+Once we have a consistent GPS, we can then guide the raspimouse movement with a ROS 2 node (mouse_control), and use the GPS as odometry.
+
+### Version 2 
+
+Now we want to develop a system where there are less than 4 drones. 
+The GPS equations require 4 points to get the location, so if we are limited to less drones, we need a way to buffer measurements.
+We will have 2 flying drones and they will takeoff and move in some defined pattern (for example a square flight path, or just back and forth).
+As they move they take consistent distance measurements and know their own positions.
+From this we can get the necessary 4 points for the GPS calculation. 
+As more measurements arrive, the oldest in the buffer can be replaced. 
+The goal is to replicate the same GPS measurements and raspimouse movement as in version 1, but with 2 drones. 
+
+This version can be further expanded with only 1 drone. 
+It is essentially the same scenario, just with a slower rate of measurement. 
+
+### Version 3 
+
+Multiple raspimouse? 
+measure the distances between each flying drone too?
+turning the mouse (although this could be version 1 also)
+1 raspimouse - have the drones circle it as moves along?
+
 
 
 
