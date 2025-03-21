@@ -1,0 +1,21 @@
+robot1_diff_drive_controller:
+  ros__parameters:
+    type: diff_drive_controller/DiffDriveController
+    publish_rate: 50.0
+    left_wheel_names: ["left_wheel_joint"]
+    right_wheel_names: ["right_wheel_joint"]
+    wheel_separation: 0.5
+    wheel_radius: 0.1
+    base_frame_id: "raspimouse_1/base_link"
+    use_stamped_vel: false
+
+robot2_diff_drive_controller:
+  ros__parameters:
+    type: diff_drive_controller/DiffDriveController
+    publish_rate: 50.0
+    left_wheel_names: ["left_wheel_joint"]
+    right_wheel_names: ["right_wheel_joint"]
+    wheel_separation: 0.5
+    wheel_radius: 0.1
+    base_frame_id: "raspimouse_2/base_link"
+    use_stamped_vel: false

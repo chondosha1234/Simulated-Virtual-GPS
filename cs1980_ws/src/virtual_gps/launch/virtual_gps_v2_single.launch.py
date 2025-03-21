@@ -8,18 +8,10 @@ def generate_launch_description():
     launch_description = LaunchDescription([
         Node(
             package='virtual_gps',
-            executable='drone_control',
+            executable='drone_control_single',
             name='drone_control_x500_0',
             parameters=[
                 {'robot_name': 'x500_0'},
-            ],
-        ),
-        Node(
-            package='virtual_gps',
-            executable='drone_control',
-            name='drone_control_x500_1',
-            parameters=[
-                {'robot_name': 'x500_1'},
             ],
         ),
         Node(
@@ -44,7 +36,7 @@ def generate_launch_description():
             name='virtual_gps_raspimouse',
             parameters=[
                 {'robot_name':'raspimouse'},
-                {'num_drones': 2},
+                {'num_drones': 1},
             ],
         ),
         Node(

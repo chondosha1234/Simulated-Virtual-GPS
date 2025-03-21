@@ -81,13 +81,6 @@ class VirtualGPSNode(Node):
     def timer_callback(self):
         #self.get_logger().info('gps timer callback')
 
-        #self.get_logger().info(f'dist0: {self.distance0}')
-        #self.get_logger().info(f'dist1: {self.distance1}')
-        #self.get_logger().info(f'dist2: {self.distance2}')
-        #self.get_logger().info(f'dist3: {self.distance3}')
-
-        #self.get_logger().info(f'x500 0: {self.x500_0_pose.transform.translation}')
-
         target = TransformStamped()
 
         # Determine the Cartesian coordinates of the target robot
@@ -96,24 +89,7 @@ class VirtualGPSNode(Node):
 
         if target != None:
             self.gps_publisher.publish(target)
-    
-    """
-    def pose_callback(self, msg):
 
-        for transform in msg.transforms:
-            name = transform.child_frame_id
-
-            if name == 'x500_0':
-                self.x500_0_pose = transform
-            elif name == 'x500_1':
-                self.x500_1_pose = transform
-            elif name == 'x500_2':
-                self.x500_2_pose = transform
-            elif name == 'x500_3':
-                self.x500_3_pose = transform
-            #else:
-                #print("tf message robot name error")
-    """
 
     def distance_callback_0(self, msg):
         self.distance0 = msg.data
