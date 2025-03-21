@@ -125,8 +125,8 @@ class VirtualGPSNode(Node):
             target.transform.rotation.z = quat[2]
             target.transform.rotation.w = quat[3]
             """
-
-            self.gps_publisher.publish(target)
+            if target != None:
+                self.gps_publisher.publish(target)
     
 
     def convert_orientation_to_quat(self):
@@ -253,11 +253,17 @@ class VirtualGPSNode(Node):
 
         b = np.array(
             [
-                0.5(x1**2 - x0**2 + y1**2 - y0**2 + z1**2 - z0**2 + r0**2 - r1**2),
-                0.5(x2**2 - x0**2 + y2**2 - y0**2 + z2**2 - z0**2 + r0**2 - r2**2),
-                0.5(x3**2 - x0**2 + y3**2 - y0**2 + z3**2 - z0**2 + r0**2 - r3**2),
+                0.5*(x1**2 - x0**2 + y1**2 - y0**2 + z1**2 - z0**2 + r0**2 - r1**2),
+                0.5*(x2**2 - x0**2 + y2**2 - y0**2 + z2**2 - z0**2 + r0**2 - r2**2),
+                0.5*(x3**2 - x0**2 + y3**2 - y0**2 + z3**2 - z0**2 + r0**2 - r3**2),
             ]
-        ).reshape(3, 1)
+        )
+
+        # Calculate the determinant of matrix A
+        A_det = linalg.det(A)
+        # If it is 0, the matrix is linearly dependent, which means it is not invertible
+        if A_det == 0:
+            return None
 
         # Solve the system of equations
         A_inv = linalg.inv(A)
