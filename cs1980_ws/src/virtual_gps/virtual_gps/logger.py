@@ -17,7 +17,7 @@ class LoggerNode(Node):
     def __init__(self):
         super().__init__('logging_node')
 
-        logging.basicConfig(filename='logger.log', level=logging.DEBUG, filemode='a', format='%(asctime)s - %(message)s', force=True)
+        logging.basicConfig(filename='results.log', level=logging.DEBUG, filemode='a', format='%(asctime)s - %(message)s', force=True)
 
         self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
 
@@ -81,8 +81,18 @@ class LoggerNode(Node):
         self.timer = self.create_timer(1, self.timer_callback)
 
     def timer_callback(self):
-        text = f"{self.robot_text}{self.x500_0_text}{self.x500_1_text}{self.x500_2_text}{self.x500_3_text}{self.dist0_text}{self.dist1_text}{self.dist2_text}{self.dist3_text}{self.gps_text}{self.error_text}{self.orientation_text}\n"
-
+        text = f"{self.robot_text}{self.x500_0_text}{self.x500_1_text}{self.x500_2_text}{self.x500_3_text}{self.dist0_text}{self.dist1_text}{self.dist2_text}{self.dist3_text}{self.gps_text}{self.error_text}\n"
+        logging.info(f'{self.robot_text}')
+        logging.info(f'{self.x500_0_text}')
+        logging.info(f'{self.x500_1_text}')
+        logging.info(f'{self.x500_2_text}')
+        logging.info(f'{self.x500_3_text}')
+        logging.info(f'{self.dist0_text}')
+        logging.info(f'{self.dist1_text}')
+        logging.info(f'{self.dist2_text}')
+        logging.info(f'{self.dist3_text}')
+        logging.info(f'{self.gps_text}')
+        logging.info(f'{self.error_text}')
         self.get_logger().info(text)
 
 
