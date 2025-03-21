@@ -30,11 +30,11 @@ echo "Launching MAVROS connections..."
 # mavros instances -- one per drone 
 ros2 launch mavros px4.launch fcu_url:="udp://:14540@localhost:14557" namespace:="/mavros/x500_0" > "$LOG_DIR/mavros_drone0.log" 2>&1 & 
 PIDS="$PIDS $!"
-ros2 launch mavros px4.launch fcu_url:="udp://:14541@localhost:14558" namespace:="/mavros/x500_1" > "$LOG_DIR/mavros_drone1.log" 2>&1 & 
+ros2 launch mavros px4.launch fcu_url:="udp://:14541@localhost:14558" namespace:="/mavros/x500_1" tgt_system:="2" > "$LOG_DIR/mavros_drone1.log" 2>&1 & 
 PIDS="$PIDS $!"
-ros2 launch mavros px4.launch fcu_url:="udp://:14542@localhost:14559" namespace:="/mavros/x500_2" > "$LOG_DIR/mavros_drone2.log" 2>&1 & 
+ros2 launch mavros px4.launch fcu_url:="udp://:14542@localhost:14559" namespace:="/mavros/x500_2" tgt_system:="3" > "$LOG_DIR/mavros_drone2.log" 2>&1 & 
 PIDS="$PIDS $!"
-ros2 launch mavros px4.launch fcu_url:="udp://:14543@localhost:14560" namespace:="/mavros/x500_3" > "$LOG_DIR/mavros_drone3.log" 2>&1 & 
+ros2 launch mavros px4.launch fcu_url:="udp://:14543@localhost:14560" namespace:="/mavros/x500_3" tgt_system:="4" > "$LOG_DIR/mavros_drone3.log" 2>&1 & 
 PIDS="$PIDS $!"
 
 echo "Launching QGroundControl..."

@@ -198,13 +198,6 @@ def main(args=None):
 
     drone.get_logger().info(f'{drone.robot_name} before declare param')
 
-    #drone.declare_parameter('MPC_XY_VEL_MAX', 10.0)
-    #result = drone.set_param('MPC_XY_VEL_MAX', 2.0)
-    #while not result.success:
-    #    result = drone.set_param('MPC_XY_VEL_MAX', 2.0)
-    #    time.sleep(0.5)            # this may cause problems **
-
-
     drone.get_logger().info(f'{drone.robot_name} before arming')
     time.sleep(3)
     result = drone.arm_drone()
@@ -220,10 +213,10 @@ def main(args=None):
 
     # add some movement in a loop
     while True:
-        #drone.wait_for_position(5.0, 0.0, 5.0)
-        #drone.wait_for_position(5.0, 5.0, 5.0)
-        drone.wait_for_position(0.0, 5.0, 5.0)
-        drone.wait_for_position(0.0, -5.0, 5.0)
+        drone.wait_for_position(3.0, 3.0, 5.0)
+        drone.wait_for_position(-3.0, 3.0, 5.0)
+        drone.wait_for_position(-3.0, -3.0, 5.0)
+        drone.wait_for_position(3.0, -3.0, 5.0)
 
 
     drone.set_mode("AUTO.LAND")
