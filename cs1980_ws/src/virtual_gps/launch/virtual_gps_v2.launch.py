@@ -56,7 +56,6 @@ def generate_launch_description():
             ],
         ),
         
-        
     ])
 
     return launch_description
