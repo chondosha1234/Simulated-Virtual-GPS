@@ -9,6 +9,7 @@ from tf2_msgs.msg import TFMessage
 from std_msgs.msg import Float32
 import math
 import numpy as np
+from scipy import linalg
 
 class VirtualGPSNode(Node):
 
@@ -86,8 +87,9 @@ class VirtualGPSNode(Node):
         target = self.trilateration_solver(self.x500_0_pose, self.x500_1_pose, self.x500_2_pose, self.x500_3_pose, 
                                     self.distance0, self.distance1, self.distance2, self.distance3)
 
-        self.gps_publisher.publish(target)
- 
+        if target != None:
+            self.gps_publisher.publish(target)
+
 
     def distance_callback_0(self, msg):
         self.distance0 = msg.data
@@ -112,7 +114,60 @@ class VirtualGPSNode(Node):
 
     def x500_3_sub_callback(self, msg):
         self.x500_3_pose = msg
+    
+    def trilateration_solver(self, drone0, drone1, drone2, drone3, r0, r1, r2, r3):
+        # Get the cartesian coordinates of all the four drones
+        x0 = drone0.transform.translation.x
+        y0 = drone0.transform.translation.y
+        z0 = drone0.transform.translation.z
 
+        x1 = drone1.transform.translation.x
+        y1 = drone1.transform.translation.y
+        z1 = drone1.transform.translation.z
+
+        x2 = drone2.transform.translation.x
+        y2 = drone2.transform.translation.y
+        z2 = drone2.transform.translation.z
+
+        x3 = drone3.transform.translation.x
+        y3 = drone3.transform.translation.y
+        z3 = drone3.transform.translation.z
+
+        A = np.array(
+            [
+                [x1-x0, y1-y0, z1-z0],
+                [x2-x0, y2-y0, z2-z0],
+                [x3-x0, y3-y0, z3-z0],
+            ]
+        )
+
+        b = np.array(
+            [
+                0.5*(x1**2 - x0**2 + y1**2 - y0**2 + z1**2 - z0**2 + r0**2 - r1**2),
+                0.5*(x2**2 - x0**2 + y2**2 - y0**2 + z2**2 - z0**2 + r0**2 - r2**2),
+                0.5*(x3**2 - x0**2 + y3**2 - y0**2 + z3**2 - z0**2 + r0**2 - r3**2),
+            ]
+        )
+
+        # Calculate the determinant of matrix A
+        A_det = linalg.det(A)
+        # If it is 0, the matrix is linearly dependent, which means it is not invertible
+        if A_det == 0:
+            return None
+
+        # Solve the system of equations
+        A_inv = linalg.inv(A)
+        x = A_inv @ b
+
+        # Create a TransformStamped message
+        target = TransformStamped()
+        target.transform.translation.x = x[0]
+        target.transform.translation.y = x[1]
+        target.transform.translation.z = x[2]
+
+        return target
+    
+    '''
     def trilateration_solver(self, drone0, drone1, drone2, drone3, r0, r1, r2, r3):
         # Get the cartesian coordinates of all the four drones
         x0 = drone0.transform.translation.x
@@ -171,7 +226,7 @@ class VirtualGPSNode(Node):
         target.transform.translation.z = triPt[2]
 
         return target
-
+    '''
     
 def main(args=None):
     rclpy.init(args=args)
