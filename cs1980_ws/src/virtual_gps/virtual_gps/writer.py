@@ -11,12 +11,13 @@ import numpy as np
 
 import json
 
-
 # variables for writing to json files
 actual_data = []
 calc_data = []
+error_data = []
 actual_filepath = "actual_data.json"
 calc_filepath = "calc_data.json"
+error_filepath = "error_data.json"
 
 class WriterNode(Node):
     
@@ -32,13 +33,20 @@ class WriterNode(Node):
         # keeps track of ground robot's gps position
         self.robot_gps_pose = TransformStamped()
 
+        # keeps track of error measurement
+        self.error = Float32()
+
         # subscriber to topic which contains actual position of robot
         self.raspimouse_sub = self.create_subscription(TransformStamped, f'/model/{self.robot_name}/pose', self.raspimouse_pose_callback, 10)
         self.raspimouse_sub
 
         # subscriber to topic '/gps' which contains estimated position of robot
-        self.gps_subscription = self.create_subscription(TransformStamped, f'/{self.robot_name}/gps', self.error_callback, 10)
+        self.gps_subscription = self.create_subscription(TransformStamped, f'/{self.robot_name}/gps', self.gps_callback, 10)
         self.gps_subscription
+
+        # subscriber to topic '/error_measure'
+        self.error_subscription = self.create_subscription(Float32, f'/{self.robot_name}/error_measure', self.error_callback, 10)
+        self.error_subscription
 
         # timer that runs callback function every 200ms
         self.timer = self.create_timer(0.2, self.timer_callback)
@@ -47,9 +55,12 @@ class WriterNode(Node):
         if msg.child_frame_id == 'raspimouse':
             self.robot_pose = msg
 
-    def error_callback(self, msg):
+    def gps_callback(self, msg):
         # setting pose variable equal to msg (should be of type TransformStamped)
         self.robot_gps_pose = msg
+
+    def error_callback(self, msg):
+        self.error = msg
     
     def timer_callback(self):
         # getting actual positions
@@ -75,10 +86,18 @@ class WriterNode(Node):
             "y": y2,
             "z": z2,
         }
+
+        # putting error measurement into json format
+        e_data = {
+            "error": self.error
+        }
         
         # adding robot's actual & calculated positions into list
         actual_data.append(a_data)
         calc_data.append(c_data)
+
+        # adding error data into list
+        error_data.append(e_data)
 
 def write():
     # write to actual_data.json
@@ -88,6 +107,10 @@ def write():
     # write to calc_data.json
     with open(calc_filepath, 'w') as json_file:
         json.dump(calc_data, json_file, indent=4)
+
+    # write to error_data.json
+    with open(error_filepath, 'w') as json_file:
+        json.dump(error_data, json_file, indent=4)
 
 def main(args=None):
     rclpy.init(args=args)
