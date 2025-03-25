@@ -65,7 +65,7 @@ echo "Launching ROS2 launch file 'virtual_gps_v2.launch.py'"
 sleep 2
 
 source ~/Simulated-Virtual-GPS/cs1980_ws/install/setup.bash
-ros2 launch virtual_gps virtual_gps_v2_1drone.launch.py &
+ros2 launch virtual_gps virtual_gps_v2_single.launch.py &
 PIDS="$PIDS $!"
 
 sleep 8

@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
-from geometry_msgs.msg import TwistStamped, PoseStamped
+from geometry_msgs.msg import TwistStamped, PoseStamped, TransformStamped
 from mavros_msgs.msg import State
 from mavros_msgs.srv import SetMode, CommandBool, CommandTOLLocal, CommandTOL, ParamSetV2
 from sensor_msgs.msg import NavSatFix
@@ -24,6 +24,7 @@ class DroneControl(Node):
         self.state = None
         self.target_pose = PoseStamped()
         self.current_pose = PoseStamped()
+        self.raspimouse_pose = PoseStamped()
 
         self.local_pos_publisher = self.create_publisher(PoseStamped, f'/{self.robot_name}/setpoint_position/local', 10)
 
@@ -50,6 +51,14 @@ class DroneControl(Node):
                 qos_profile
         )
         self.gps_sub
+
+        self.mouse_gps_sub = self.create_subscription(
+            TransformStamped,
+            f'/raspimouse/gps',
+            self.mouse_gps_callback,
+            qos_profile
+        )
+        self.mouse_gps_sub
 
         self.arming_client = self.create_client(CommandBool, f'/{self.robot_name}/cmd/arming')
         self.set_mode_client = self.create_client(SetMode, f'/{self.robot_name}/set_mode')
@@ -89,6 +98,9 @@ class DroneControl(Node):
 
         if self.long == 0.0:
             self.long = msg.longitude
+
+    def mouse_gps_callback(self, msg):
+        self.raspimouse_pose = msg
 
         
     def go_to_position(self, x, y, z):
@@ -213,10 +225,12 @@ def main(args=None):
 
     # add some movement in a loop
     while True:
-        drone.wait_for_position(3.0, 3.0, 5.0)
-        drone.wait_for_position(-3.0, 3.0, 5.0)
-        drone.wait_for_position(-3.0, -3.0, 5.0)
-        drone.wait_for_position(3.0, -3.0, 5.0)
+        mouse_x = drone.raspimouse_pose.transform.translation.x
+        mouse_y = drone.raspimouse_pose.transform.translation.y
+        drone.wait_for_position(mouse_x + 3.0, mouse_y + 3.0, 5.0)
+        drone.wait_for_position(mouse_x - 3.0, mouse_y + 3.0, 5.0)
+        drone.wait_for_position(mouse_x - 3.0, mouse_y - 3.0, 5.0)
+        drone.wait_for_position(mouse_x + 3.0, mouse_y - 3.0, 5.0)
 
 
     drone.set_mode("AUTO.LAND")

@@ -47,10 +47,6 @@ class VirtualGPSNode(Node):
         # tracks whether buffer is full
         self.filled = False
 
-        # Subscriber to topic '/tf' which contains drone positions
-        #self.x500_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
-        #self.x500_subscription
-
         # Subscriber to topic '/dist/{self.robot_name}/x500_0'
         self.sensor_subscription_0 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_0', self.distance_callback_0, 10)
         self.sensor_subscription_0
@@ -146,11 +142,6 @@ class VirtualGPSNode(Node):
         # set filled to true if buffer is filled after adding tuple to it
         if len(buffer) == 4:
             self.filled = True
-
-            #self.get_logger().info(f'buffer0: {buffer[0][0].transform.translation.x}, {buffer[0][0].transform.translation.y}, {buffer[0][0].transform.translation.z} -- {buffer[0][1]}')
-            #self.get_logger().info(f'buffer1: {buffer[1][0].transform.translation.x}, {buffer[1][0].transform.translation.y}, {buffer[1][0].transform.translation.z} -- {buffer[1][1]}')
-            #self.get_logger().info(f'buffer2: {buffer[2][0].transform.translation.x}, {buffer[2][0].transform.translation.y}, {buffer[2][0].transform.translation.z} -- {buffer[2][1]}')
-            #self.get_logger().info(f'buffer3: {buffer[3][0].transform.translation.x}, {buffer[3][0].transform.translation.y}, {buffer[3][0].transform.translation.z} -- {buffer[3][1]}')
 
     def distance_callback_0(self, msg):
         self.dist0 = msg.data

@@ -45,10 +45,6 @@ class VirtualGPSNode(Node):
         timer_period = 0.25
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
-        # Subscriber to topic '/tf' which contains drone positions
-        #self.x500_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, qos_profile)
-        #self.x500_subscription
-
         # Subscriber to topic '/dist/{self.robot_name}/x500_0'
         self.sensor_subscription_0 = self.create_subscription(Float32, f'/dist/{self.robot_name}/x500_0', self.distance_callback_0, 10)
         self.sensor_subscription_0
@@ -87,7 +83,7 @@ class VirtualGPSNode(Node):
         target = self.trilateration_solver(self.x500_0_pose, self.x500_1_pose, self.x500_2_pose, self.x500_3_pose, 
                                     self.distance0, self.distance1, self.distance2, self.distance3)
 
-        if target != None:
+        if target is not None:
             self.gps_publisher.publish(target)
 
 
@@ -133,6 +129,12 @@ class VirtualGPSNode(Node):
         y3 = drone3.transform.translation.y
         z3 = drone3.transform.translation.z
 
+
+        #self.get_logger().info(f'drone1: x:{x1}  y: {y1}  z: {z1}')
+        #self.get_logger().info(f'drone2: x:{x2}  y: {y2}  z: {z2}')
+        #self.get_logger().info(f'drone3: x:{x3}  y: {y3}  z: {z3}')
+        #self.get_logger().info(f'drone0: x:{x0}  y: {y0}  z: {z0}\n')
+
         A = np.array(
             [
                 [x1-x0, y1-y0, z1-z0],
@@ -148,16 +150,27 @@ class VirtualGPSNode(Node):
                 0.5*(x3**2 - x0**2 + y3**2 - y0**2 + z3**2 - z0**2 + r0**2 - r3**2),
             ]
         )
+        
+        self.get_logger().info(f'{A}\n')
+        self.get_logger().info(f'{b}\n')
 
         # Calculate the determinant of matrix A
         A_det = linalg.det(A)
+        self.get_logger().info(f'determinant: {A_det}\n')
         # If it is 0, the matrix is linearly dependent, which means it is not invertible
         if A_det == 0:
             return None
+        #if np.isclose(A_det, 0, atol=1e-16):
+        #    return None
+
 
         # Solve the system of equations
         A_inv = linalg.inv(A)
+        self.get_logger().info(f'{A_inv}\n')
         x = A_inv @ b
+        #x = np.linalg.solve(A, b)
+
+        self.get_logger().info(f'result matrix: {x}')
 
         # Create a TransformStamped message
         target = TransformStamped()

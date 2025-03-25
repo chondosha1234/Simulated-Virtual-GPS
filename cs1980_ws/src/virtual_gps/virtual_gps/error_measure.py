@@ -40,17 +40,6 @@ class ErrorMeasureNode(Node):
         # timer that runs callback function every 200ms
         self.timer = self.create_timer(0.2, self.timer_callback)
 
-    """
-    def pose_callback(self, msg):
-        for transform in msg.transforms:
-            name = transform.child_frame_id
-
-            #print(f"transform name: {name}")
-        
-            # setting pose variable equal to msg (should be of type TransformStamped)
-            if name == self.robot_name:
-                self.robot_actual_pose = transform
-    """
     def raspimouse_pose_callback(self,msg):
         if msg.child_frame_id == 'raspimouse':
             self.robot_pose = msg
