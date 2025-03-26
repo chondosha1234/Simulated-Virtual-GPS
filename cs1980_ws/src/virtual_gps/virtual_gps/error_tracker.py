@@ -26,7 +26,7 @@ plt.title('Error over Time')
 # modifying x and y ticks
 plt.xticks([])
 plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True, prune='lower'))  # Prunes the lower end
-plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.2f}'))  # Format the ticks to 2 decimal places
+plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.4f}'))  # Format the ticks to 4 decimal places
 
 # Show the plot
 plt.show()
