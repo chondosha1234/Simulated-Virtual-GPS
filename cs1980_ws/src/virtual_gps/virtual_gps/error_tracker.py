@@ -5,7 +5,7 @@ import numpy as np
 import json
 
 # loading error data
-file_path = "error_data.json"
+file_path = "./measurements/error_data.json"
 with open(file_path, 'r') as json_file:
     error_data = json.load(json_file)
 

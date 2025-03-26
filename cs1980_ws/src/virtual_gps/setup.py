@@ -34,6 +34,7 @@ setup(
             'orientation = virtual_gps.orientation:main',
             'wheel_publisher = virtual_gps.wheel_publisher:main',
             'logger = virtual_gps.logger:main',
+            'writer = virtual_gps.writer:main',
         ],
     },
 )

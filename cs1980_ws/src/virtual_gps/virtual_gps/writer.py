@@ -10,14 +10,20 @@ import math
 import numpy as np
 
 import json
+import signal
+import os
+from ament_index_python.packages import get_package_share_directory
 
 # variables for writing to json files
 actual_data = []
 calc_data = []
 error_data = []
-actual_filepath = "actual_data.json"
-calc_filepath = "calc_data.json"
-error_filepath = "error_data.json"
+
+package_path = get_package_share_directory('virtual_gps')
+calc_filepath = os.path.join(os.getcwd(), 'src', 'virtual_gps', 'virtual_gps', 'measurements', 'calc_data.json')
+actual_filepath = os.path.join(os.getcwd(), 'src', 'virtual_gps', 'virtual_gps', 'measurements', 'actual_data.json')
+error_filepath = os.path.join(os.getcwd(), 'src', 'virtual_gps', 'virtual_gps', 'measurements', 'error_data.json')
+
 
 class WriterNode(Node):
     
@@ -68,38 +74,46 @@ class WriterNode(Node):
         y1 = self.robot_actual_pose.transform.translation.y
         z1 = self.robot_actual_pose.transform.translation.z
 
-        # putting actual position into json format
-        a_data = {
-            "x": x1,
-            "y": y1,
-            "z": z1,
-        } 
+        if not math.isnan(x1) and not math.isnan(y1) and not math.isnan(z1):
+            # putting actual position into json format
+            a_data = {
+                "x": x1,
+                "y": y1,
+                "z": z1,
+            } 
+
+            actual_data.append(a_data)
 
         # getting calculated positions
         x2 = self.robot_gps_pose.transform.translation.x
         y2 = self.robot_gps_pose.transform.translation.y
         z2 = self.robot_gps_pose.transform.translation.z
 
-        # putting calculated position into json format
-        c_data = {
-            "x": x2,
-            "y": y2,
-            "z": z2,
-        }
+        if not math.isnan(x2) and not math.isnan(y2) and not math.isnan(z2):
+            # putting calculated position into json format
+            c_data = {
+                "x": x2,
+                "y": y2,
+                "z": z2,
+            }
+            calc_data.append(c_data)
 
-        # putting error measurement into json format
-        e_data = {
-            "error": self.error
-        }
-        
+        if not math.isnan(self.error.data):
+            # putting error measurement into json format
+            e_data = {
+                "error": self.error.data
+            }
+            error_data.append(e_data)
+            
         # adding robot's actual & calculated positions into list
-        actual_data.append(a_data)
-        calc_data.append(c_data)
+        #actual_data.append(a_data)
+        #calc_data.append(c_data)
 
         # adding error data into list
-        error_data.append(e_data)
+        #error_data.append(e_data)
 
 def write():
+
     # write to actual_data.json
     with open(actual_filepath, 'w') as json_file:
         json.dump(actual_data, json_file, indent=4)
@@ -112,14 +126,21 @@ def write():
     with open(error_filepath, 'w') as json_file:
         json.dump(error_data, json_file, indent=4)
 
+def shutdown_handler(signum, frame):
+    write()
+    rclpy.shutdown()
+    exit(0)
+
 def main(args=None):
     rclpy.init(args=args)
     node = WriterNode()
+
+    signal.signal(signal.SIGINT, shutdown_handler)
+    signal.signal(signal.SIGTERM, shutdown_handler)
+
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
-
-    write()
 
 
 if __name__ == '__main__':
