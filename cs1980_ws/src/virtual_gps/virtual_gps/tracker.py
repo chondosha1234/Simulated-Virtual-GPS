@@ -26,8 +26,8 @@ calc_x_vals = [point["x"] for point in calc_data]
 calc_y_vals = [point["y"] for point in calc_data]
 
 # Connect the points with a line
-ax.plot(actual_x_vals, actual_y_vals, color='g', label='Actual Location')
-ax.plot(calc_x_vals, calc_y_vals, color='r', label='Calculated Location')
+ax.scatter(actual_x_vals, actual_y_vals, color='g', label='Actual Location')
+ax.scatter(calc_x_vals, calc_y_vals, color='r', label='Calculated Location')
 
 # Label the axes
 ax.set_xlabel('x Position')
