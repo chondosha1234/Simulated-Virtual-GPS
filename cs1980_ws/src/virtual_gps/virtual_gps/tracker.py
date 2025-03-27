@@ -2,6 +2,8 @@ import json
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+from matplotlib.animation import FuncAnimation
+
 # getting actual locations
 file_path = './measurements/actual_data.json'
 
