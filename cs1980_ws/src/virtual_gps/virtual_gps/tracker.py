@@ -25,19 +25,50 @@ actual_y_vals = [point["y"] for point in actual_data]
 calc_x_vals = [point["x"] for point in calc_data]
 calc_y_vals = [point["y"] for point in calc_data]
 
-# Connect the points with a line
-ax.scatter(actual_x_vals, actual_y_vals, color='g', label='Actual Location')
-ax.scatter(calc_x_vals, calc_y_vals, color='r', label='Calculated Location')
 
-# Label the axes
+# create a figure
+fig, ax = plt.subplots()
+
+# Plot the first scatter plot
+scat1 = ax.scatter(actual_x_vals, actual_y_vals, color='green', label='Actual Location')
+
+# Add labels and title
 ax.set_xlabel('x Position')
 ax.set_ylabel('y Position')
-
-# Set the title of the plot
 ax.set_title('Actual vs. Calculated Locations')
 
-# Show legend
+# Show the legend
 ax.legend()
 
-# Display the plot
+# Function to update the plot with the second dataset
+def update(frame):
+    if frame == 1:
+        ax.scatter(calc_x_vals, calc_y_vals, color='red', label='Calculated Location')
+        ax.legend()
+
+# Create the animation
+ani = FuncAnimation(fig, update, frames=[0, 1], interval=2000, repeat=False)
+
+# Show the plot
 plt.show()
+
+
+
+
+
+# # Connect the points with a line
+# ax.scatter(actual_x_vals, actual_y_vals, color='g', label='Actual Location')
+# ax.scatter(calc_x_vals, calc_y_vals, color='r', label='Calculated Location')
+
+# # Label the axes
+# ax.set_xlabel('x Position')
+# ax.set_ylabel('y Position')
+
+# # Set the title of the plot
+# ax.set_title('Actual vs. Calculated Locations')
+
+# # Show legend
+# ax.legend()
+
+# # Display the plot
+# plt.show()
