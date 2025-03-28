@@ -25,6 +25,7 @@ setup(
         'console_scripts': [
             'drone_control = virtual_gps.drone_control:main',
             'drone_control_single = virtual_gps.drone_control_single:main',
+            'drone_takeoff = virtual_gps.drone_takeoff:main',
             'virtual_gps = virtual_gps.virtual_gps:main',
             'virtual_gps_v2 = virtual_gps.virtual_gps_v2:main',
             'sensor = virtual_gps.sensor:main',
@@ -35,6 +36,8 @@ setup(
             'wheel_publisher = virtual_gps.wheel_publisher:main',
             'logger = virtual_gps.logger:main',
             'writer = virtual_gps.writer:main',
+            'sensor_v2 = virtual_gps.sensor_v2:main',
+            'virtual_gps_v3 = virtual_gps.virtual_gps_v3:main',
         ],
     },
 )

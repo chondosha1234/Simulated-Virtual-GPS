@@ -14,7 +14,6 @@ class RaspimouseMover(Node):
         self.robot_name = self.declare_parameter('robot_name', 'robot').get_parameter_value().string_value
 
         self.robot_pose = TransformStamped()
-        self.last_robot_pose = TransformStamped()
 
         self.error_measure = 0.0
         self.robot_orientation = 0.0
@@ -46,23 +45,15 @@ class RaspimouseMover(Node):
         )
         self.error_sub
 
-        timer_period = 0.1   # 50ms
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-
     
     def pose_callback(self, msg):
-        self.last_robot_pose = msg
+        self.robot_pose = msg
 
     def orientation_callback(self, msg):
         self.robot_orientation = msg.data
 
     def error_callback(self, msg):
         self.error_measure = msg.data
-
-    def timer_callback(self):
-        if self.error_measure < 1.5:
-            self.robot_pose = self.last_robot_pose
-
 
     def move(self, linear_speed=0.1, angular_speed=0.0):
         """Publish velocity command for a given duration."""
@@ -87,8 +78,8 @@ class RaspimouseMover(Node):
         """
         #Moves the robot forward 1m, turns left, and moves forward again.
         self.get_logger().info("Moving forward 1 meter...")
-        while self.robot_pose.transform.translation.x < 2.0:
-            self.move(linear_speed=0.2) 
+        while self.robot_pose.transform.translation.x < 1.0:
+            self.move(linear_speed=0.1) 
             rclpy.spin_once(self)
         self.stop()
 
@@ -99,8 +90,8 @@ class RaspimouseMover(Node):
         self.stop()
 
         self.get_logger().info("Moving forward 1 meter in new direction...")
-        while self.robot_pose.transform.translation.y < 2.0:
-            self.move(linear_speed=0.2)
+        while self.robot_pose.transform.translation.y < 1.0:
+            self.move(linear_speed=0.1)
             rclpy.spin_once(self)
         self.stop()
 
@@ -112,7 +103,7 @@ class RaspimouseMover(Node):
 
         self.get_logger().info("Moving forward 1 meter in new direction...")
         while self.robot_pose.transform.translation.x > 0.0:
-            self.move(linear_speed=0.2)
+            self.move(linear_speed=0.1)
             rclpy.spin_once(self)
         self.stop()
 
@@ -124,7 +115,7 @@ class RaspimouseMover(Node):
 
         self.get_logger().info("Moving forward 1 meter in new direction...")
         while self.robot_pose.transform.translation.y > 0.0:
-            self.move(linear_speed=0.2)
+            self.move(linear_speed=0.1)
             rclpy.spin_once(self)
         self.stop()
 

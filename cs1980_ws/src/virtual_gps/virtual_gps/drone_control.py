@@ -222,9 +222,12 @@ def main(args=None):
     while True:
         #drone.wait_for_position(5.0, 0.0, 5.0)
         #drone.wait_for_position(5.0, 5.0, 5.0)
-        drone.wait_for_position(0.0, 5.0, 5.0)
-        drone.wait_for_position(0.0, -5.0, 5.0)
-
+        if drone.robot_name == 'x500_0':
+            drone.wait_for_position(0.0, 5.0, 5.0)
+            drone.wait_for_position(0.0, -5.0, 5.0)
+        else:
+            drone.wait_for_position(0.0, -5.0, 5.0)
+            drone.wait_for_position(0.0, 5.0, 5.0)
 
     drone.set_mode("AUTO.LAND")
 

@@ -55,6 +55,14 @@ def generate_launch_description():
                 {'robot_name':'raspimouse'},
             ],
         ),
+        Node(
+            package='virtual_gps',
+            executable='writer',
+            name='writer_raspimouse',
+            parameters=[
+                {'robot_name':'raspimouse'},
+            ],
+        ),
         
     ])
 

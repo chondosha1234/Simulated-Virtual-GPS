@@ -24,27 +24,22 @@ class ErrorMeasureNode(Node):
         self.robot_gps_pose = TransformStamped()
         
         # publisher to topic that ? will subscribe to 
-        self.error_publisher = self.create_publisher(Float32, f'/{self.robot_name}/error_measure', 10)
+        self.error_publisher = self.create_publisher(Float32, f'/{self.robot_name}/error_measure', 1)
 
-        # subscriber to topic '/tf' which contains robot positions
-        #self.robot_subscription = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
-        #self.robot_subscription
-
-        self.raspimouse_sub = self.create_subscription(TransformStamped, f'/model/{self.robot_name}/pose', self.raspimouse_pose_callback, 10)
+        self.raspimouse_sub = self.create_subscription(TransformStamped, f'/model/{self.robot_name}/pose', self.raspimouse_pose_callback, 1)
         self.raspimouse_sub
 
         # subscriber to topic '/gps' which contains estimated position of robot
-        self.gps_subscription = self.create_subscription(TransformStamped, f'/{self.robot_name}/gps', self.error_callback, 10)
+        self.gps_subscription = self.create_subscription(TransformStamped, f'/{self.robot_name}/gps', self.gps_callback, 1)
         self.gps_subscription
 
         # timer that runs callback function every 200ms
-        self.timer = self.create_timer(0.2, self.timer_callback)
+        self.timer = self.create_timer(.25, self.timer_callback)
 
     def raspimouse_pose_callback(self,msg):
-        if msg.child_frame_id == 'raspimouse':
-            self.robot_pose = msg
+        self.robot_actual_pose = msg
 
-    def error_callback(self, msg):
+    def gps_callback(self, msg):
         # setting pose variable equal to msg (should be of type TransformStamped)
         self.robot_gps_pose = msg
     
@@ -56,12 +51,13 @@ class ErrorMeasureNode(Node):
         error = self.calculate_error(self.robot_gps_pose, self.robot_actual_pose)
 
         # here for testing purposes 
-        #self.get_logger().info(f'sensor distance calc: {error}')
+        self.get_logger().info(f'error distance calc: {error}')
         
         # publish error calculation to topic
-        msg = Float32()
-        msg.data = error
-        self.error_publisher.publish(msg)
+        if not math.isnan(error):
+            msg = Float32()
+            msg.data = error
+            self.error_publisher.publish(msg)
     
 
     def calculate_error(self, gps_pose, actual_pose):

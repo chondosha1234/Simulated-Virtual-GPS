@@ -110,7 +110,7 @@ class VirtualGPSNode(Node):
 
     def x500_3_sub_callback(self, msg):
         self.x500_3_pose = msg
-    
+    """
     def trilateration_solver(self, drone0, drone1, drone2, drone3, r0, r1, r2, r3):
         # Get the cartesian coordinates of all the four drones
         x0 = drone0.transform.translation.x
@@ -180,7 +180,7 @@ class VirtualGPSNode(Node):
 
         return target
     
-    '''
+    """
     def trilateration_solver(self, drone0, drone1, drone2, drone3, r0, r1, r2, r3):
         # Get the cartesian coordinates of all the four drones
         x0 = drone0.transform.translation.x
@@ -239,7 +239,7 @@ class VirtualGPSNode(Node):
         target.transform.translation.z = triPt[2]
 
         return target
-    '''
+    
     
 def main(args=None):
     rclpy.init(args=args)

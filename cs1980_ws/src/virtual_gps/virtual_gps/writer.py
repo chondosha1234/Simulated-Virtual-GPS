@@ -59,7 +59,8 @@ class WriterNode(Node):
 
     def raspimouse_pose_callback(self,msg):
         if msg.child_frame_id == 'raspimouse':
-            self.robot_pose = msg
+            self.robot_actual_pose = msg
+        
 
     def gps_callback(self, msg):
         # setting pose variable equal to msg (should be of type TransformStamped)

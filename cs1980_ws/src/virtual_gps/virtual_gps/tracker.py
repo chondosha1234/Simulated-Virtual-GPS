@@ -45,7 +45,7 @@ ax.legend()
 # Function to update the plot with the actual location
 def update(frame):
     if frame == 1:
-        ax.scatter(actual_x_vals, actual_y_vals, color='green', label='Actual Location')
+        ax.scatter(actual_x_vals, actual_y_vals, marker='x', color='green', label='Actual Location')
         ax.legend()
 
 # Create the animation
