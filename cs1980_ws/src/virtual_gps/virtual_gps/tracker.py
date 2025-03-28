@@ -27,17 +27,16 @@ actual_y_vals = [point["y"] for point in actual_data]
 calc_x_vals = [point["x"] for point in calc_data]
 calc_y_vals = [point["y"] for point in calc_data]
 
+# Scatter plot for the actual location
+plt.scatter(actual_x_vals, actual_y_vals, color='green', label='Actual Location', s=10, zorder = 2)
 
-# create a figure
-fig, ax = plt.subplots()
-
-# Plot calculated location first
-scat1 = ax.scatter(calc_x_vals, calc_y_vals, color='red', label='Calculated Location')
+# Scatter plot for the second dataset
+plt.scatter(calc_x_vals, calc_y_vals, color='red', label='Calculated Location', zorder=1)
 
 # Add labels and title
-ax.set_xlabel('x Position')
-ax.set_ylabel('y Position')
-ax.set_title('Actual vs. Calculated Locations')
+plt.xlabel('x Position')
+plt.ylabel('y Position')
+plt.title('Actual vs. Calculated Locations')
 
 # Show the legend
 ax.legend()
@@ -55,6 +54,35 @@ ani = FuncAnimation(fig, update, frames=[0, 1], interval=2000, repeat=False)
 plt.show()
 
 
+
+
+
+
+# # create a figure
+# fig, ax = plt.subplots()
+
+# # Plot calculated location first
+# scat1 = ax.scatter(calc_x_vals, calc_y_vals, color='red', label='Calculated Location')
+
+# # Add labels and title
+# ax.set_xlabel('x Position')
+# ax.set_ylabel('y Position')
+# ax.set_title('Actual vs. Calculated Locations')
+
+# # Show the legend
+# ax.legend()
+
+# # Function to update the plot with the actual location
+# def update(frame):
+#     if frame == 1:
+#         ax.scatter(actual_x_vals, actual_y_vals, color='green', label='Actual Location')
+#         ax.legend()
+
+# # Create the animation
+# ani = FuncAnimation(fig, update, frames=[0, 1], interval=2000, repeat=False)
+
+# # Show the plot
+# plt.show()
 
 
 
