@@ -55,6 +55,8 @@ Install instructions:
 
 `sudo apt install ros-jazzy-tf2-ros ros-jazzy-tf2-tools`
 
+`sudo apt install ros-jazzy-tf-transformations`
+
 ### Raspimouse
 
 raspimouse is a small ground robot. It was chosen for its simplicity and gz compatible models. 
