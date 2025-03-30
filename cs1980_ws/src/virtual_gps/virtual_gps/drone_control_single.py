@@ -225,12 +225,18 @@ def main(args=None):
 
     # add some movement in a loop
     while True:
+        """
         mouse_x = drone.raspimouse_pose.transform.translation.x
         mouse_y = drone.raspimouse_pose.transform.translation.y
         drone.wait_for_position(mouse_x + 3.0, mouse_y + 3.0, 5.0)
         drone.wait_for_position(mouse_x - 3.0, mouse_y + 3.0, 5.0)
         drone.wait_for_position(mouse_x - 3.0, mouse_y - 3.0, 5.0)
         drone.wait_for_position(mouse_x + 3.0, mouse_y - 3.0, 5.0)
+        """
+        drone.wait_for_position(5.0, 0.0, 6.0)
+        drone.wait_for_position(5.0, 5.0, 4.0)
+        drone.wait_for_position(0.0, 5.0, 6.0)
+        drone.wait_for_position(0.0, -5.0, 4.0)
 
 
     drone.set_mode("AUTO.LAND")

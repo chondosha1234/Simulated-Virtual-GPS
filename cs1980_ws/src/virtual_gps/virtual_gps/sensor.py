@@ -3,10 +3,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
-from geometry_msgs.msg import Pose
 from geometry_msgs.msg import TransformStamped
-from tf2_msgs.msg import TFMessage
-
 from std_msgs.msg import Float32
 
 import math
@@ -65,51 +62,28 @@ class SensorNode(Node):
         #self.x500_subscriber = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
         #self.x500_subscriber
 
-        self.x500_0_sub = self.create_subscription(TransformStamped, '/model/x500_0/pose', self.x500_0_sub_callback, 10)
+        self.x500_0_sub = self.create_subscription(TransformStamped, '/model/x500_0/pose', self.x500_0_sub_callback, 1)
         self.x500_0_sub
 
-        self.x500_1_sub = self.create_subscription(TransformStamped, '/model/x500_1/pose', self.x500_1_sub_callback, 10)
+        self.x500_1_sub = self.create_subscription(TransformStamped, '/model/x500_1/pose', self.x500_1_sub_callback, 1)
         self.x500_1_sub
 
-        self.x500_2_sub = self.create_subscription(TransformStamped, '/model/x500_2/pose', self.x500_2_sub_callback, 10)
+        self.x500_2_sub = self.create_subscription(TransformStamped, '/model/x500_2/pose', self.x500_2_sub_callback, 1)
         self.x500_2_sub
 
-        self.x500_3_sub = self.create_subscription(TransformStamped, '/model/x500_3/pose', self.x500_3_sub_callback, 10)
+        self.x500_3_sub = self.create_subscription(TransformStamped, '/model/x500_3/pose', self.x500_3_sub_callback, 1)
         self.x500_3_sub
 
-        self.raspimouse_sub = self.create_subscription(TransformStamped, f'/model/{self.robot_name}/pose', self.raspimouse_pose_callback, 10)
+        self.raspimouse_sub = self.create_subscription(TransformStamped, f'/model/{self.robot_name}/pose', self.raspimouse_pose_callback, 1)
         self.raspimouse_sub
         #self.raspimouse_subscriber = self.create_subscription(TransformStamped, f'/model/{self.robot_name}/pose', self.mouse_callback, 10)
         #self.raspimouse_subscriber
 
         # timer that runs callback function every 200ms -- tf_broadcaster sending every ~20ms
         # this node has enough time to collect updates/calculate for each robot before sending 
-        self.timer = self.create_timer(0.25, self.timer_callback)  # .2s -> 200ms 
+        self.timer = self.create_timer(0.2, self.timer_callback)  # .2s -> 200ms 
 
-    """
-    def pose_callback(self, msg):
 
-        # robot name in field like msg.child_frame_id or msg.transforms.child_frame_id
-        for transform in msg.transforms:
-            name = transform.child_frame_id
-
-            #self.get_logger().info(f"transform name: {name}")
-        
-            # setting pose variable equal to msg (should be of type TransformStamped)
-            if name == 'x500_0':
-                self.x500_0_pose = transform
-            elif name == 'x500_1':
-                self.x500_1_pose = transform
-            elif name == 'x500_2':
-                self.x500_2_pose = transform
-            elif name == 'x500_3':
-                self.x500_3_pose = transform
-            elif name == self.robot_name:
-                # sometimes the received transform for mouse gets dropped and is given as 0.0, 0.0, 0.0 
-                # but z should never be that (when it spawns its a few centimeters off the ground) so it can be used as a check and discarded
-                if not transform.transform.translation.z == 0.0:
-                    self.robot_pose = transform
-    """
     def x500_0_sub_callback(self, msg):
         self.x500_0_pose = msg
 
