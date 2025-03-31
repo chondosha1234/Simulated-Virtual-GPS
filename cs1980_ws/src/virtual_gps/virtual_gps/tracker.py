@@ -32,8 +32,6 @@ plt.scatter(actual_x_vals, actual_y_vals, color='green', label='Actual Locations
 # Scatter plot for the second dataset
 plt.scatter(calc_x_vals, calc_y_vals, color='red', label='Calculated Locations', zorder=1)
 
-plt.yticks(range(-2,3,1))
-
 # Add labels and title
 plt.xlabel('x Position')
 plt.ylabel('y Position')
