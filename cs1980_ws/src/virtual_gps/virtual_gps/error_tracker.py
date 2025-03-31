@@ -15,6 +15,8 @@ count = len(error_data)
 time = np.linspace(0, 1, count)  # Time from 0 to 10, with 100 points
 error_vals = [val["error"] for val in error_data]
 
+plt.figure(figsize=(10,6))
+
 # Create the plot
 plt.plot(time, error_vals, color='b')  # Line plot of value vs. time
 
