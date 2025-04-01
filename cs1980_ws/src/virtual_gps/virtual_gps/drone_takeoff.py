@@ -142,7 +142,7 @@ class DroneControl(Node):
             time.sleep(0.1)
             rclpy.spin_once(self)
             
-            #self.get_logger().info(f'altitude: {self.target_altitude}    curr: {self.altitude}')
+            self.get_logger().info(f'{self.robot_name} target altitude: {self.target_altitude}    curr: {self.altitude}')
 
         self.get_logger().warn('Timeout waiting for altitude.')
         return False
@@ -178,7 +178,7 @@ class DroneControl(Node):
         request = ParamSetV2.Request()
         request.param_id = param_name
         request.value.double_value = float(value)
-
+        #self.get_logger().info(f"Setting param {param_name} to {value}")
         future = self.param_client.call_async(request)
         rclpy.spin_until_future_complete(self, future)
         return future.result()
@@ -192,14 +192,20 @@ def main(args=None):
     drone.get_logger().info('start main ')
 
     while drone.state is None or drone.start_altitude == 0.0:
-        drone.get_logger().info(f'{drone.robot_name} waiting for drone state')
+        #drone.get_logger().info(f'{drone.robot_name} waiting for drone state')
         rclpy.spin_once(drone)
 
 
     drone.get_logger().info(f'{drone.robot_name} before declare param')
 
+    #drone.declare_parameter('MPC_XY_VEL_MAX', 10.0)
+    #result = drone.set_param('MPC_XY_VEL_MAX', 2.0)
+    #while not result.success:
+    #    result = drone.set_param('MPC_XY_VEL_MAX', 2.0)
+    #    time.sleep(0.5)            # this may cause problems **
 
-    drone.get_logger().info(f'{drone.robot_name} before arming')
+
+    #drone.get_logger().info(f'{drone.robot_name} before arming')
     time.sleep(3)
     result = drone.arm_drone()
     while not result.success:
@@ -210,22 +216,20 @@ def main(args=None):
 
     drone.takeoff_drone(5.0)
     drone.wait_for_altitude()
-    drone.set_mode("AUTO.LOITER")
+
+    while drone.state.mode != "AUTO.LOITER":
+        drone.set_mode("AUTO.LOITER")
+        rclpy.spin_once(drone)
 
     # add some movement in a loop
     while True:
-        #drone.wait_for_position(5.0, 0.0, 5.0)
+        #drone.wait_for_position(0.1, 0.0, 5.0)
         #drone.wait_for_position(5.0, 5.0, 5.0)
-        if drone.robot_name == 'x500_0':
-            drone.wait_for_position(0.0, -3.0, 4.0)
-            drone.wait_for_position(-6.0, -3.0, 6.0)
-            drone.wait_for_position(-6.0, 3.0, 4.0)
-            drone.wait_for_position(0.0, 3.0, 6.0)
-        else:
-            drone.wait_for_position(0.0, 3.0, 6.0)
-            drone.wait_for_position(6.0, 3.0, 4.0)
-            drone.wait_for_position(6.0, -3.0, 6.0)
-            drone.wait_for_position(0.0, -3.0, 4.0)
+        #drone.wait_for_position(0.0, 5.0, 5.0)
+        #drone.wait_for_position(0.0, -5.0, 5.0)
+        #time.sleep(1)
+        rclpy.spin_once(drone)
+
 
     drone.set_mode("AUTO.LAND")
 

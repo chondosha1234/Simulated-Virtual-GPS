@@ -1,9 +1,7 @@
 import rclpy
 from rclpy.node import Node
 
-from geometry_msgs.msg import Pose
 from geometry_msgs.msg import TransformStamped
-from tf2_msgs.msg import TFMessage
 
 from std_msgs.msg import Float32
 import math
@@ -36,6 +34,10 @@ class ErrorMeasureNode(Node):
         # timer that runs callback function every 200ms
         self.timer = self.create_timer(.25, self.timer_callback)
 
+        self.counter = 0
+        self.bad_counter = 0
+
+
     def raspimouse_pose_callback(self,msg):
         self.robot_actual_pose = msg
 
@@ -45,19 +47,23 @@ class ErrorMeasureNode(Node):
     
 
     def timer_callback(self):
-        #self.get_logger().info('error measurement timer callback')
 
         # calculate error between actual ground robot location and gps location
         error = self.calculate_error(self.robot_gps_pose, self.robot_actual_pose)
+        self.counter += 1
 
         # here for testing purposes 
         self.get_logger().info(f'error distance calc: {error}')
         
         # publish error calculation to topic
-        if not math.isnan(error):
+        if not math.isnan(error) and abs(error) < 50:
             msg = Float32()
             msg.data = error
             self.error_publisher.publish(msg)
+        else:
+            self.bad_counter += 1
+        
+        self.get_logger().info(f'{self.bad_counter} of {self.counter} were off by more than 50 meters')
     
 
     def calculate_error(self, gps_pose, actual_pose):

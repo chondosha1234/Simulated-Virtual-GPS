@@ -38,17 +38,8 @@ plt.xlabel('x Position')
 plt.ylabel('y Position')
 plt.title('Actual vs. Calculated Locations')
 
-# Show the legend
-ax.legend()
-
-# Function to update the plot with the actual location
-def update(frame):
-    if frame == 1:
-        ax.scatter(actual_x_vals, actual_y_vals, marker='x', color='green', label='Actual Location')
-        ax.legend()
-
-# Create the animation
-ani = FuncAnimation(fig, update, frames=[0, 1], interval=2000, repeat=False)
+# Add a legend to differentiate the two datasets
+plt.legend()
 
 # Show the plot
 plt.show()
