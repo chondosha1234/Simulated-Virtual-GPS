@@ -10,7 +10,7 @@ import tf_transformations
 import copy 
 import math
 import numpy as np
-from scipy import linalg
+import numpy.linalg as linalg
 
 class VirtualGPSNode(Node):
 
@@ -98,6 +98,32 @@ class VirtualGPSNode(Node):
             self.buffer(self.buffer_list, self.drone2)
             self.buffer(self.buffer_list, self.drone3)
 
+    def coefficient_array(drone0, drone1, drone2, drone3):
+        x0 = drone0.x
+        y0 = drone0.y
+        z0 = drone0.z
+
+        x1 = drone1.x
+        y1 = drone1.y
+        z1 = drone1.z
+
+        x2 = drone2.x
+        y2 = drone2.y
+        z2 = drone2.z
+
+        x3 = drone3.x
+        y3 = drone3.y
+        z3 = drone3.z
+        
+        A = np.array(
+            [
+                [x1-x0, y1-y0, z1-z0],
+                [x2-x0, y2-y0, z2-z0],
+                [x3-x0, y3-y0, z3-z0],
+            ]
+        )
+        return A
+
 
     def buffer(self, buffer, drone):
 
@@ -111,14 +137,36 @@ class VirtualGPSNode(Node):
         # if buffer is filled, dump buffer before adding tuple--number of elements dumped dependent on number of drones in sim
         # i.e. dumps 1 if 1 drone, 2 if 2 drones, 4 if 4 drones
         elif len(buffer) == 4:
-            buffer.pop(0)
-            buffer.append(drone_copy)
+            # buffer.pop(0)
+            # buffer.append(drone_copy)
         
+            A0 = self.coefficient_array(drone_copy, buffer[1], buffer[2], buffer[3])
+            A1 = self.coefficient_array(buffer[0], drone_copy, buffer[2], buffer[3])
+            A2 = self.coefficient_array(buffer[0], buffer[1], drone_copy, buffer[3])
+            A3 = self.coefficient_array(buffer[0], buffer[1], buffer[2], drone_copy)
+
+            A0_cond = linalg.cond(A0)
+            A1_cond = linalg.cond(A1)
+            A2_cond = linalg.cond(A2)
+            A3_cond = linalg.cond(A3)
+
+            A_min_cond = min(A0_cond, A1_cond, A2_cond, A3_cond)
+
+            if A_min_cond == A0_cond:
+                buffer.pop(0)              
+            elif A_min_cond == A1_cond:
+                buffer.pop(1)
+            elif A_min_cond == A2_cond:
+                buffer.pop(2)
+            elif A_min_cond == A3_cond:
+                buffer.pop(3)
+            
+            buffer.append(drone_copy)
+
         self.filled = False
         # set filled to true if buffer is filled after adding tuple to it
         if len(buffer) == 4:
             self.filled = True
-
 
     def distance_callback_0(self, msg):
         self.drone0 = msg
@@ -134,7 +182,6 @@ class VirtualGPSNode(Node):
 
     
     def trilateration_solver(self, drone0, drone1, drone2, drone3):
-
         x0 = drone0.x
         y0 = drone0.y
         z0 = drone0.z
