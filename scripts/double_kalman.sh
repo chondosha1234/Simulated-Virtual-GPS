@@ -4,10 +4,17 @@
 LOG_DIR="$HOME/Simulated-Virtual-GPS/logs"
 mkdir -p "$LOG_DIR"
 
+PIDS=""
+
 # function to clean up all processes on exit 
 cleanup() {
 	echo "Stopping all drone processes..."
-	kill $PIDS 2>/dev/null
+
+	if [[ -n "$PIDS" ]]; then
+		kill -TERM $PIDS 2>/dev/null
+		wait $PIDS 2>/dev/null
+	fi 
+	
 	exit 0
 }
 
@@ -70,15 +77,18 @@ ros2 run ros_gz_bridge parameter_bridge /model/raspimouse/pose@geometry_msgs/msg
 PIDS="$PIDS $!"
 
 
-echo "Launching ROS2 launch file 'virtual_gps_v2.launch.py'"
+echo "Launching ROS2 launch file"
 
 sleep 2
 
 source ~/Simulated-Virtual-GPS/cs1980_ws/install/setup.bash
-ros2 launch virtual_gps virtual_gps_v3.launch.py > "$LOG_DIR/ros2_launch.log" 2>&1 &
+ros2 launch virtual_gps kalman_gps_double.launch.py > "$LOG_DIR/ros2_launch.log" 2>&1 &
 PIDS="$PIDS $!"
 
-sleep 8
+sleep 10
+
+ros2 launch virtual_gps kalman.launch.py > "$LOG_DIR/kalman_launch.log" 2>&1 &
+PIDS="$PIDS $!"
 
 # wait some time for all topics and params to be established before trying to set speed
 echo "Setting drone speed parameters..."

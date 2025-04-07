@@ -23,7 +23,7 @@ class RaspimouseMover(Node):
         # get position from the gps node to guide movement 
         self.pose_subscriber = self.create_subscription(
             TransformStamped, 
-            f'/{self.robot_name}/gps',
+            f'/{self.robot_name}/filtered_gps',
             self.pose_callback,
             10
         )
@@ -47,8 +47,7 @@ class RaspimouseMover(Node):
 
     
     def pose_callback(self, msg):
-        if self.error_measure < 1.0:
-            self.robot_pose = msg
+        self.robot_pose = msg
 
     def orientation_callback(self, msg):
         self.robot_orientation = msg.data
@@ -71,56 +70,13 @@ class RaspimouseMover(Node):
 
 
     def execute_movement(self):
-        """
-        while True:
-            self.move(angular_speed=0.5) 
-            rclpy.spin_once(self)
-            time.sleep(0.2) 
-        """
+
         #Moves the robot forward 1m, turns left, and moves forward again.
-        self.get_logger().info("Moving forward 1 meter...")
-        while self.robot_pose.transform.translation.x < 1.0:
+        self.get_logger().info("Moving forward 10 meters...")
+        while self.robot_pose.transform.translation.x < 10.0:
             self.move(linear_speed=0.1) 
             rclpy.spin_once(self)
         self.stop()
-
-        self.get_logger().info("Turning left 90 degrees...")
-        while self.robot_orientation < 87.0:
-            self.move(angular_speed=0.25) 
-            rclpy.spin_once(self)
-        self.stop()
-
-        self.get_logger().info("Moving forward 1 meter in new direction...")
-        while self.robot_pose.transform.translation.y < 1.0:
-            self.move(linear_speed=0.1)
-            rclpy.spin_once(self)
-        self.stop()
-
-        self.get_logger().info("Turning left 90 degrees...")
-        while self.robot_orientation < 177.0:
-            self.move(angular_speed=0.25) 
-            rclpy.spin_once(self)
-        self.stop()
-
-        self.get_logger().info("Moving forward 1 meter in new direction...")
-        while self.robot_pose.transform.translation.x > 0.0:
-            self.move(linear_speed=0.1)
-            rclpy.spin_once(self)
-        self.stop()
-
-        self.get_logger().info("Turning left 90 degrees...")
-        while self.robot_orientation > 177.0 or self.robot_orientation < -92.0:
-            self.move(angular_speed=0.25) 
-            rclpy.spin_once(self)
-        self.stop()
-
-        self.get_logger().info("Moving forward 1 meter in new direction...")
-        while self.robot_pose.transform.translation.y > 0.0:
-            self.get_logger().info(f'{self.robot_pose.transform.translation.y}')
-            self.move(linear_speed=0.1)
-            rclpy.spin_once(self)
-        self.stop()
-        self.get_logger().info(f'{self.robot_pose.transform.translation.y}')
 
         self.get_logger().info("Movement sequence complete.")
         

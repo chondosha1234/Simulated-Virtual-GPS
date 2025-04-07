@@ -19,21 +19,33 @@ file_path3 = "./measurements/error_data3.json"
 with open(file_path3, 'r') as json_file:
     error_data3 = json.load(json_file)
 
-count = max([len(error_data1), len(error_data2), len(error_data3)])
+count = min([len(error_data1), len(error_data2), len(error_data3)])
 
 # data that will be plotted
 time = np.linspace(0, 1, count)  # Time from 0 to 10, with 100 points
 
-error_vals1 = [val["error"] for val in error_data1]
-error_vals2 = [val["error"] for val in error_data2]
-error_vals3 = [val["error"] for val in error_data3]
+error_vals1 = [val["error"] for val in error_data1[:count]]
+error_vals2 = [val["error"] for val in error_data2[:count]]
+error_vals3 = [val["error"] for val in error_data3[:count]]
+
+"""
+# sets need to have same length 
+length_1 = len(error_vals1)
+length_2 = len(error_vals2)
+length_3 = len(error_vals3)
+min_length = min(length_1, length_2, length_3)
+
+error_vals1 = error_vals1[:min_length]
+error_vals2 = error_vals2[:min_length]
+error_vals3 = error_vals3[:min_length]
+"""
 
 plt.figure(figsize=(10,6))
 
 # Line plot of value vs. time
-plt.plot(time, error_vals1, color='b', label="Setup 1")  
-plt.plot(time, error_vals2, color='g', label="Setup 2")
-plt.plot(time, error_vals3, color='r', label="Setup 3")
+plt.plot(time, error_vals1, color='b', label="4 Drones")  
+plt.plot(time, error_vals2, color='g', label="2 Drones")
+plt.plot(time, error_vals3, color='r', label="1 Drone")
 
 plt.legend()
 

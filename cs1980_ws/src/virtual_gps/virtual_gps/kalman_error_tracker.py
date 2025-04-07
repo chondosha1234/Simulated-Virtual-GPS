@@ -5,7 +5,7 @@ import numpy as np
 import json
 
 # loading error data
-file_path = "./measurements/error_data.json"
+file_path = "./measurements/kalman_error_data.json"
 with open(file_path, 'r') as json_file:
     error_data = json.load(json_file)
 
@@ -23,7 +23,7 @@ plt.plot(time, error_vals, color='b')  # Line plot of value vs. time
 # Adding labels and title
 plt.xlabel('Time')
 plt.ylabel('Error')
-plt.title('Error over Time')
+plt.title('Kalman Error over Time')
 
 # modifying x and y ticks
 plt.xticks([])
