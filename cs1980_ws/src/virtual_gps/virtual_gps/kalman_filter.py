@@ -4,9 +4,11 @@ import numpy as np
 from numpy import *
 from numpy.linalg import inv, det
 import math
+from tf_transformations import euler_from_quaternion
 
 from std_msgs.msg import Float32
 from geometry_msgs.msg import TransformStamped
+from nav_msgs.msg import Odometry
 
 
 class KalmanFilterNode(Node):
@@ -34,9 +36,12 @@ class KalmanFilterNode(Node):
         self.U = zeros((self.X.shape[0], 1))
 
         # Measurement matrices
-        self.Y = array([[self.X[0,0] + abs(random.randn(1)[0])], [self.X[1,0] + abs(random.randn(1)[0])]])
+        self.Y = array([
+            [self.X[0,0] + abs(random.randn(1)[0])], [self.X[1,0] + abs(random.randn(1)[0])], [self.X[2,0]], [self.X[3,0]]
+        ])
 
-        self.H = array([[1, 0, 0, 0], [0, 1, 0, 0]])
+        #self.H = array([[1, 0, 0, 0], [0, 1, 0, 0]])
+        self.H = np.eye(4)
 
         self.R = eye(self.Y.shape[0])
 
@@ -48,14 +53,14 @@ class KalmanFilterNode(Node):
             self.gps_callback, 
             10
         )
-        """
-        self.error_sub = self.create_subscription(
-            Float32, 
-            f'/{self.robot_name}/measured_error', 
-            self.error_callback, 
+    
+        self.odom_sub = self.create_subscription(
+            Odometry, 
+            f'/odom', 
+            self.odom_callback, 
             10
         )
-        """
+        
 
         self.filtered_gps = self.create_publisher(TransformStamped, f'/{self.robot_name}/filtered_gps', 10)
 
@@ -65,12 +70,32 @@ class KalmanFilterNode(Node):
     
 
     def gps_callback(self, msg):
-        self.Y = np.array([
-            [msg.transform.translation.x],
-            [msg.transform.translation.y]
-        ])
+        #self.Y = np.array([
+         #   [msg.transform.translation.x],
+          #  [msg.transform.translation.y]
+        #])
         #self.z_coord = msg.transform.translation.z
+        self.Y[0,0] = msg.transform.translation.x
+        self.Y[1,0] = msg.transform.translation.y
 
+    def odom_callback(self, msg):
+        
+        # extract the linear velocity and angular velocity from robot odom
+        vx = msg.twist.twist.linear.x 
+
+        yaw = euler_from_quaternion([
+            msg.pose.pose.orientation.x,
+            msg.pose.pose.orientation.y,
+            msg.pose.pose.orientation.z,
+            msg.pose.pose.orientation.w
+        ])[2]
+
+        # convert the robot x speed to world vx,vy frame 
+        vx_world = vx * cos(yaw)
+        vy_world = vx * sin(yaw)
+
+        self.Y[2,0] = vx_world 
+        self.Y[3,0] = vy_world
 
     """
     X : The mean state estimate of the previous step ( k-1 ).

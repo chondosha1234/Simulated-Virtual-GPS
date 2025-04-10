@@ -21,13 +21,13 @@ ax = fig.add_subplot(111, projection='3d')
 y_min, y_max = -2.0, 2.0
 
 # Separate the x, y, and z coordinates
-actual_x_vals = [point["x"] for point in actual_data if y_min <= point["y"] <= y_max]
-actual_y_vals = [point["y"] for point in actual_data if y_min <= point["y"] <= y_max]
-actual_z_vals = [point["z"] for point in actual_data if y_min <= point["y"] <= y_max]
+actual_x_vals = [point["x"] for point in actual_data if y_min <= point["x"] <= y_max and y_min <= point["y"] <= y_max]
+actual_y_vals = [point["y"] for point in actual_data if y_min <= point["x"] <= y_max and y_min <= point["y"] <= y_max]
+actual_z_vals = [point["z"] for point in actual_data if y_min <= point["x"] <= y_max and y_min <= point["y"] <= y_max]
 
-calc_x_vals = [point["x"] for point in calc_data if y_min <= point["y"] <= y_max]
-calc_y_vals = [point["y"] for point in calc_data if y_min <= point["y"] <= y_max]
-calc_z_vals = [point["z"] for point in calc_data if y_min <= point["y"] <= y_max]
+calc_x_vals = [point["x"] for point in calc_data if y_min <= point["x"] <= y_max and y_min <= point["y"] <= y_max]
+calc_y_vals = [point["y"] for point in calc_data if y_min <= point["x"] <= y_max and y_min <= point["y"] <= y_max]
+calc_z_vals = [point["z"] for point in calc_data if y_min <= point["x"] <= y_max and y_min <= point["y"] <= y_max]
 
 # Connect the points with a line
 ax.scatter(actual_x_vals, actual_z_vals, actual_y_vals, color='g', label='Actual Location')

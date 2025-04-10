@@ -28,17 +28,6 @@ error_vals1 = [val["error"] for val in error_data1[:count]]
 error_vals2 = [val["error"] for val in error_data2[:count]]
 error_vals3 = [val["error"] for val in error_data3[:count]]
 
-"""
-# sets need to have same length 
-length_1 = len(error_vals1)
-length_2 = len(error_vals2)
-length_3 = len(error_vals3)
-min_length = min(length_1, length_2, length_3)
-
-error_vals1 = error_vals1[:min_length]
-error_vals2 = error_vals2[:min_length]
-error_vals3 = error_vals3[:min_length]
-"""
 
 plt.figure(figsize=(10,6))
 

@@ -233,10 +233,10 @@ def main(args=None):
         drone.wait_for_position(mouse_x - 3.0, mouse_y - 3.0, 5.0)
         drone.wait_for_position(mouse_x + 3.0, mouse_y - 3.0, 5.0)
         """
-        drone.wait_for_position(5.0, 0.0, 6.0)
-        drone.wait_for_position(5.0, 5.0, 4.0)
-        drone.wait_for_position(0.0, 5.0, 6.0)
-        drone.wait_for_position(0.0, -5.0, 4.0)
+        drone.wait_for_position(0.0, -3.0, 4.0)
+        drone.wait_for_position(-6.0, -3.0, 6.0)
+        drone.wait_for_position(-6.0, 3.0, 4.0)
+        drone.wait_for_position(0.0, 3.0, 6.0)
 
 
     drone.set_mode("AUTO.LAND")

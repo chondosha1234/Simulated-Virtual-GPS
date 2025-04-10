@@ -33,7 +33,7 @@ def generate_launch_description():
         ),
         Node(
             package='virtual_gps',
-            executable='virtual_gps_v2',
+            executable='virtual_gps_v3',
             name='virtual_gps_raspimouse',
             parameters=[
                 {'robot_name':'raspimouse'},

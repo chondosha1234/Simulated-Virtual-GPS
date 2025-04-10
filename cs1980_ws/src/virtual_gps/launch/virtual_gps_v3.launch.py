@@ -24,7 +24,7 @@ def generate_launch_description():
         ),
         Node(
             package='virtual_gps',
-            executable='sensor_v2',
+            executable='sensor',
             name='sensor_raspimouse',
             parameters=[
                 {'robot_name':'raspimouse'},

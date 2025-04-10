@@ -6,7 +6,10 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 from geometry_msgs.msg import TransformStamped
 from std_msgs.msg import Float32
 
+from interfaces.msg import PositionDistance
+
 import math
+import copy
 
 class SensorNode(Node):
 
@@ -35,32 +38,28 @@ class SensorNode(Node):
         # publisher to topic that virtual_gps will subscribe to -- msg type TBD, using float for now
         # change topic name?
         self.x500_0_publisher = self.create_publisher(
-            Float32, 
+            PositionDistance, 
             f'/dist/{self.robot_name}/x500_0', 
             10
         ) 
 
         self.x500_1_publisher = self.create_publisher(
-            Float32, 
+            PositionDistance, 
             f'/dist/{self.robot_name}/x500_1', 
             10
         ) 
 
         self.x500_2_publisher = self.create_publisher(
-            Float32, 
+            PositionDistance, 
             f'/dist/{self.robot_name}/x500_2', 
             10
         ) 
 
         self.x500_3_publisher = self.create_publisher(
-            Float32, 
+            PositionDistance, 
             f'/dist/{self.robot_name}/x500_3', 
             10
         ) 
-
-        # subscriber to '/tf' which contains robot positions
-        #self.x500_subscriber = self.create_subscription(TFMessage, '/tf', self.pose_callback, 10)
-        #self.x500_subscriber
 
         self.x500_0_sub = self.create_subscription(TransformStamped, '/model/x500_0/pose', self.x500_0_sub_callback, 1)
         self.x500_0_sub
@@ -76,8 +75,6 @@ class SensorNode(Node):
 
         self.raspimouse_sub = self.create_subscription(TransformStamped, f'/model/{self.robot_name}/pose', self.raspimouse_pose_callback, 1)
         self.raspimouse_sub
-        #self.raspimouse_subscriber = self.create_subscription(TransformStamped, f'/model/{self.robot_name}/pose', self.mouse_callback, 10)
-        #self.raspimouse_subscriber
 
         # timer that runs callback function every 200ms -- tf_broadcaster sending every ~20ms
         # this node has enough time to collect updates/calculate for each robot before sending 
@@ -97,35 +94,50 @@ class SensorNode(Node):
         self.x500_3_pose = msg
 
     def raspimouse_pose_callback(self, msg):
-        if msg.child_frame_id == 'raspimouse':
-            self.robot_pose = msg
+        self.robot_pose = msg
 
 
     def timer_callback(self):
 
-        #self.get_logger().info('sensor timer callback')
+        x500_0 = copy.deepcopy(self.x500_0_pose)
+        x500_1 = copy.deepcopy(self.x500_1_pose)
+        x500_2 = copy.deepcopy(self.x500_2_pose)
+        x500_3 = copy.deepcopy(self.x500_3_pose)
+        mouse = copy.deepcopy(self.robot_pose)
 
         # calculate distance from target robot to every flying robot
-        dist0 = self.calculate_distance(self.robot_pose, self.x500_0_pose)
-        dist1 = self.calculate_distance(self.robot_pose, self.x500_1_pose)
-        dist2 = self.calculate_distance(self.robot_pose, self.x500_2_pose)
-        dist3 = self.calculate_distance(self.robot_pose, self.x500_3_pose)
+        dist0 = self.calculate_distance(mouse, x500_0)
+        dist1 = self.calculate_distance(mouse, x500_1)
+        dist2 = self.calculate_distance(mouse, x500_2)
+        dist3 = self.calculate_distance(mouse, x500_3)
 
         # publish distance to each flying robot to the topic for it 
-        msg0 = Float32() 
-        msg0.data = dist0
+        msg0 = PositionDistance()
+        msg0.x = x500_0.transform.translation.x 
+        msg0.y = x500_0.transform.translation.y 
+        msg0.z = x500_0.transform.translation.z
+        msg0.distance = dist0
         self.x500_0_publisher.publish(msg0)
 
-        msg1 = Float32() 
-        msg1.data = dist1
+        msg1 = PositionDistance()
+        msg1.x = x500_1.transform.translation.x 
+        msg1.y = x500_1.transform.translation.y 
+        msg1.z = x500_1.transform.translation.z
+        msg1.distance = dist1
         self.x500_1_publisher.publish(msg1)
 
-        msg2 = Float32()
-        msg2.data = dist2
+        msg2 = PositionDistance()
+        msg2.x = x500_2.transform.translation.x
+        msg2.y = x500_2.transform.translation.y 
+        msg2.z = x500_2.transform.translation.z
+        msg2.distance = dist2
         self.x500_2_publisher.publish(msg2)
 
-        msg3 = Float32()
-        msg3.data = dist3
+        msg3 = PositionDistance()
+        msg3.x = x500_3.transform.translation.x
+        msg3.y = x500_3.transform.translation.y 
+        msg3.z = x500_3.transform.translation.z
+        msg3.distance = dist3
         self.x500_3_publisher.publish(msg3)
         
 
@@ -137,17 +149,9 @@ class SensorNode(Node):
         y1 = robot1.transform.translation.y
         z1 = robot1.transform.translation.z
 
-        #self.get_logger().info(f'mouse x: {x1}')
-        #self.get_logger().info(f'mouse y: {y1}')
-        #self.get_logger().info(f'mouse z: {z1}')
-
         x2 = robot2.transform.translation.x
         y2 = robot2.transform.translation.y
         z2 = robot2.transform.translation.z
-
-        #self.get_logger().info(f'drone x: {x2}')
-        #self.get_logger().info(f'drone y: {y2}')
-        #self.get_logger().info(f'drone z: {z2}')
 
         # using x,y,z values to calculate euclidean distance
         x_value = (x1-x2) ** 2
@@ -156,9 +160,6 @@ class SensorNode(Node):
 
         # possibly replace these calculations with tf2 function?--probably not necessary
         euclidean_distance = math.sqrt((x_value + y_value + z_value)) 
-
-        # here for testing purposes
-        #self.get_logger().info(f'sensor distance calc: {euclidean_distance}')
         
         return euclidean_distance
 
