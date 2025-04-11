@@ -17,7 +17,6 @@ Zixin Ye
 ## Frameworks and Tools 
 
 ### Ubuntu 24.04
-
     
 Ubuntu is one of the most popular Linux Operating Systems. 24.04 was the latest stable long term release version at the time of this project. Many of the following tools work well and are easy to isntall on an Ubuntu system, compared with Mac or Windows.    
 
@@ -80,7 +79,6 @@ Scroll down to where it says `<!-- =============== Gazebo =============== -->` a
           <publish_nested_model_pose>true</publish_nested_model_pose>
         </plugin>
       </gazebo>
-
 
 
 ### PX4-Autopilot
@@ -162,35 +160,43 @@ The launch files are also called in the scripts at appropriate places.
 
 These scripts are found in the `scripts/` folder and can be easily run with `./start.sh` for example.
 
-### Version 1 
+### Stage 1
 
 Version 1 of the project was to set up the infrastructure and architecture of the simulation and get a basic virtual GPS to work.
 This setup has 4 flying x500 drones positioned on the ground in the 4 cardinal directions around the origin.
 One raspimouse is placed at the origin point. 
-Using our virtual GPS for the raspimouse, we are able to calculate its position using 4 positions which are the 4 stationary drones. 
-Once we have a consistent GPS, we can then guide the raspimouse movement with a ROS 2 node (mouse_control), and use the GPS as odometry.
+Using our virtual GPS for the raspimouse, we are able to calculate its position using 4 positions and distances of the 4 drones. 
 
-### Version 2 
+### Stage 2
 
 Now we want to develop a system where there are less than 4 drones. 
-The GPS equations require 4 points to get the location, so if we are limited to less drones, we need a way to buffer measurements.
+The GPS trilateration equations require at least 4 points to get the location, so if we are limited to less drones, we need a way to buffer measurements.
 We will have 2 flying drones and they will takeoff and move in some defined pattern (for example a square flight path, or just back and forth).
 As they move they take consistent distance measurements and know their own positions.
 From this we can get the necessary 4 points for the GPS calculation. 
 As more measurements arrive, the oldest in the buffer can be replaced. 
 The goal is to replicate the same GPS measurements and raspimouse movement as in version 1, but with 2 drones. 
+This can also be extedned to using only 1 drone.
 
-This version can be further expanded with only 1 drone. 
-It is essentially the same scenario, just with a slower rate of measurement. 
+### Stage 3 
 
-### Version 3 
+At this point we have a working GPS implementation which accurately can pinpoint the raspimouse.
+It works with 4 drones, and the buffered versions with 1 and 2 drones also.
+Now we will move the raspimouse and see if this affects the accuracy of the measurements. 
+We can use some basic patterns like just moving in a straight line or moving in a square.
+We can use the gazebo simulation data to get the actual robot position and compare it to our GPS position to obtain an error. 
+After testing this we noticed that the 4 drone setup works well (albeit with some amount of error that is way off and can be filtered out).
+The 1 and 2 drone setups have noticeably higher error as the raspimouse moves. 
 
-Multiple raspimouse? 
-measure the distances between each flying drone too?
-turning the mouse (although this could be version 1 also)
-1 raspimouse - have the drones circle it as moves along?
+### Stage 4 
 
-
+After accomplishing the goals of Stage 3, we decided to apply a kalman filter node to improve upon the error of the 1 and 2 drone setups. 
+The kalman filter node has a predict and an update step. 
+The update step is triggered by obtaining a new measurement from our GPS topic.
+The prediction step can run multiple times between new measurements.
+We also can include the ability to track the velocity by listening to the raspimouse's basic odometry.
+This odometry just has forward/backward velocity and angular velocity, but it can be converted to the world's xy plane velocity. 
+This filter shows a noticeable improvement for the 1 and 2 drone setups. 
 
 
 
