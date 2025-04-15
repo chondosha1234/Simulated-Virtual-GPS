@@ -5,17 +5,17 @@ import numpy as np
 import json
 
 # loading error data
-file_path1 = "./measurements/error_data1.json"
+file_path1 = "./measurements/error_data1_movement.json"
 with open(file_path1, 'r') as json_file:
     error_data1 = json.load(json_file)
 
 # loading error data
-file_path2 = "./measurements/error_data2.json"
+file_path2 = "./measurements/error_data2_movement.json"
 with open(file_path2, 'r') as json_file:
     error_data2 = json.load(json_file)
 
 # loading error data
-file_path3 = "./measurements/error_data3.json"
+file_path3 = "./measurements/error_data3_movement.json"
 with open(file_path3, 'r') as json_file:
     error_data3 = json.load(json_file)
 
@@ -29,12 +29,12 @@ error_vals2 = [val["error"] for val in error_data2[:count]]
 error_vals3 = [val["error"] for val in error_data3[:count]]
 
 
-plt.figure(figsize=(10,6))
+plt.figure(figsize=(5,3))
 
 # Line plot of value vs. time
-plt.plot(time, error_vals1, color='b', label="4 Drones")  
 plt.plot(time, error_vals2, color='g', label="2 Drones")
 plt.plot(time, error_vals3, color='r', label="1 Drone")
+plt.plot(time, error_vals1, color='b', label="4 Drones")  
 
 plt.legend()
 

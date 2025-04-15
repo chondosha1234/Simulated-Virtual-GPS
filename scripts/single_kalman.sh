@@ -68,7 +68,7 @@ source ~/Simulated-Virtual-GPS/cs1980_ws/install/setup.bash
 ros2 launch virtual_gps kalman_gps_single.launch.py &
 PIDS="$PIDS $!"
 
-sleep 10
+sleep 14
 
 ros2 launch virtual_gps kalman.launch.py > "$LOG_DIR/kalman_launch.log" 2>&1 &
 PIDS="$PIDS $!"

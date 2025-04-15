@@ -155,32 +155,7 @@ class VirtualGPSNode(Node):
         r1 = drone1.distance 
         r2 = drone2.distance 
         r3 = drone3.distance
-        """
-        self.get_logger().info('coordinates for gps')
-
-        self.get_logger().info(f'{x0}')
-        self.get_logger().info(f'{y0}')
-        self.get_logger().info(f'{z0}\n')
-
-        self.get_logger().info(f'{x1}')
-        self.get_logger().info(f'{y1}')
-        self.get_logger().info(f'{z1}\n')
-
-        self.get_logger().info(f'{x2}')
-        self.get_logger().info(f'{y2}')
-        self.get_logger().info(f'{z2}\n')
-
-        self.get_logger().info(f'{x3}')
-        self.get_logger().info(f'{y3}')
-        self.get_logger().info(f'{z3}\n')
-
-        self.get_logger().info('distances')
-
-        self.get_logger().info(f'{r0}\n')
-        self.get_logger().info(f'{r1}\n')
-        self.get_logger().info(f'{r2}\n')
-        self.get_logger().info(f'{r3}\n')
-        """
+    
         A = np.array(
             [
                 [x1-x0, y1-y0, z1-z0],

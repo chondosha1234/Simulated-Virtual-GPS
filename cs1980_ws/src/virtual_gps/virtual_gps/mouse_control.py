@@ -79,26 +79,26 @@ class RaspimouseMover(Node):
         """
         #Moves the robot forward 1m, turns left, and moves forward again.
         self.get_logger().info("Moving forward 1 meter...")
-        while self.robot_pose.transform.translation.x < 1.0:
+        while self.robot_pose.transform.translation.x < 1.5:
             self.move(linear_speed=0.1) 
             rclpy.spin_once(self)
         self.stop()
 
         self.get_logger().info("Turning left 90 degrees...")
         while self.robot_orientation < 87.0:
-            self.move(angular_speed=0.40) 
+            self.move(angular_speed=0.25) 
             rclpy.spin_once(self)
         self.stop()
 
         self.get_logger().info("Moving forward 1 meter in new direction...")
-        while self.robot_pose.transform.translation.y < 2.0:
+        while self.robot_pose.transform.translation.y < 1.5:
             self.move(linear_speed=0.1)
             rclpy.spin_once(self)
         self.stop()
 
         self.get_logger().info("Turning left 90 degrees...")
         while self.robot_orientation < 177.0:
-            self.move(angular_speed=0.40) 
+            self.move(angular_speed=0.25) 
             rclpy.spin_once(self)
         self.stop()
 
@@ -110,7 +110,7 @@ class RaspimouseMover(Node):
 
         self.get_logger().info("Turning left 90 degrees...")
         while self.robot_orientation > 177.0 or self.robot_orientation < -92.0:
-            self.move(angular_speed=0.40) 
+            self.move(angular_speed=0.25) 
             rclpy.spin_once(self)
         self.stop()
 

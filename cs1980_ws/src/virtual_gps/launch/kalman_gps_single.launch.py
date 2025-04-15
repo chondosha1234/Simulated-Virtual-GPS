@@ -8,7 +8,7 @@ def generate_launch_description():
     launch_description = LaunchDescription([
         Node(
             package='virtual_gps',
-            executable='drone_control_single',
+            executable='drone_control',
             name='drone_control_x500_0',
             parameters=[
                 {'robot_name': 'x500_0'},

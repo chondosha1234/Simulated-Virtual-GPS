@@ -30,7 +30,7 @@ plt.xticks([])
 plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True, prune='lower'))  # Prunes the lower end
 plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.4f}'))  # Format the ticks to 4 decimal places
 
-plt.ylim(0.0, 40.0)
+plt.ylim(0.0, 20.0)
 
 # Show the plot
 plt.show()

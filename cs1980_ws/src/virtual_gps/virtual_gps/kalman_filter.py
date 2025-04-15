@@ -128,6 +128,8 @@ class KalmanFilterNode(Node):
     """
     #def update(self, X, P, Y, H, R):
     def update(self):
+        
+        self.prediction()
 
         IM = dot(self.H, self.X)
         IS = self.R + dot(self.H, dot(self.P, self.H.T))
