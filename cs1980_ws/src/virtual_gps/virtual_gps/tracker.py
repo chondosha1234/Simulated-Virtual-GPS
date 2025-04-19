@@ -6,13 +6,15 @@ from matplotlib.animation import FuncAnimation
 import time
 
 # getting actual locations
-file_path = './measurements/actual_data.json'
+file_path = './measurements/old_data/1_drone_raw_move_actual.json'
+#file_path = './measurements/actual_data.json'
 
 with open(file_path, 'r') as json_file:
     actual_data = json.load(json_file)
 
 # getting calculated locations
-file_path = './measurements/calc_data.json'
+file_path = './measurements/old_data/1_drone_raw_move_calc.json'
+#file_path = './measurements/calc_data.json'
 
 with open(file_path, 'r') as json_file:
     calc_data = json.load(json_file)
@@ -20,7 +22,7 @@ with open(file_path, 'r') as json_file:
 
 
 
-y_min, y_max = -5.0, 5.0
+y_min, y_max = -50.0, 50.0
 
 # Filter and collect valid points from both datasets
 actual_filtered = [
@@ -52,8 +54,8 @@ plt.ylabel('y Position')
 plt.title('Actual vs. Calculated Locations')
 plt.legend()
 
-plt.xlim(-3.0, 3.0)
-plt.ylim(-3.0, 3.0)
+#plt.xlim(-3.0, 3.0)
+#plt.ylim(-3.0, 3.0)
 
 # Show plot
 plt.show()

@@ -6,12 +6,14 @@ from matplotlib.animation import FuncAnimation
 import time
 
 # getting actual locations
+#file_path = './measurements/old_data/2_drone_raw_move_actual.json'
 file_path = './measurements/actual_data.json'
 
 with open(file_path, 'r') as json_file:
     actual_data = json.load(json_file)
 
 # getting calculated locations
+#file_path = './measurements/old_data/2_drone_kalman.json'
 file_path = './measurements/kalman_data.json'
 
 with open(file_path, 'r') as json_file:
